@@ -14,7 +14,7 @@ for folder in os.listdir(os.getcwd() + '\\data\\arrival_flights'):
 
             if len(set(flight["runway"])) == 1: # We don't have runway information for all flights. This covers situation where that occurs.
 
-                runway = [set(flight["runway"]), list(flight["timestamp"])[-1]]
+                runway = [int(flight["runway"][0]), list(flight["timestamp"])[-1]]
                 runways.append(runway)
                 # Dit is dus je runway + de timestamp van landen.
 
@@ -29,7 +29,7 @@ for folder in os.listdir(os.getcwd() + '\\data\\departure_flights'):
 
             if len(set(flight["runway"])) == 1: # We don't have runway information for all flights. This covers situation where that occurs.
 
-                runway = [set(flight["runway"]), list(flight["timestamp"])[0]]
+                runway = [int(flight["runway"][0]), list(flight["timestamp"])[0]]
                 runways.append(runway)
                 # Dit is dus je runway + de timestamp van landen.
 
