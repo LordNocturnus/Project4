@@ -14,12 +14,12 @@ for folder in os.listdir(os.getcwd() + '\\data\\arrival_flights'): # Folders
 
             if len(set(flight["runway"])) == 1: # We don't have runway information for all flights. This covers situation where that occurs.
 
-                runway = [int(list(flight["runway"])[-1]), list(flight["timestamp"])[-1]]
+                runway = [int(list(flight["runway"])[-1]), list(flight["timestamp"])[-1], True]
                 runways.append(runway)
                 # Dit is dus je runway + de timestamp van landen.
 
-            print(runway)
-
+            #print(runway)
+'''
 ## DEPARTURES
 for folder in os.listdir(os.getcwd() + '\\data\\departure_flights'):
     for file in os.listdir(os.getcwd() + '\\data\\departure_flights\\' + folder):
@@ -29,8 +29,17 @@ for folder in os.listdir(os.getcwd() + '\\data\\departure_flights'):
 
             if len(set(flight["runway"])) == 1: # We don't have runway information for all flights. This covers situation where that occurs.
 
-                runway = [int(flight["runway"][0]), list(flight["timestamp"])[0]]
+                runway = [int(flight["runway"][0]), list(flight["timestamp"])[0], False]
                 runways.append(runway)
                 # Dit is dus je runway + de timestamp van landen.
 
             print(runway)
+'''
+
+if "runway_usage" not in os.listdir(os.getcwd() + "\\data"):
+    os.mkdir(f"data\\runway_usage")
+
+runways = pd.DataFrame(runways, columns =['runway', 'timestamp', 'arriving'])
+
+runways.to_csv('data\\runway_usage\\test.csv', index=False)
+
