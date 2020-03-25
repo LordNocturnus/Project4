@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
+import sys
 
 for file in os.listdir(os.getcwd() + '\\data\\arrival_processed'):
     if file[-4:] == '.csv':
