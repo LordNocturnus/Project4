@@ -8,6 +8,10 @@ runway10 = [["runway", "timestamp", "arriving/departing"]]
 runway14 = [["runway", "timestamp", "arriving/departing"]]
 runway16 = [["runway", "timestamp", "arriving/departing"]]
 ## ARRIVALS
+
+missing = 0
+present = 0
+
 for folder in os.listdir(os.getcwd() + '\\data\\arrival_flights'): # Folders
     for file in os.listdir(os.getcwd() + '\\data\\arrival_flights\\' + folder): # Flights
         if file[-4:] == '.csv': # Making sure we can do something with this file
@@ -26,6 +30,11 @@ for folder in os.listdir(os.getcwd() + '\\data\\arrival_flights'): # Folders
 
                 elif realrunway == 16 or realrunway == 34:
                     runway16.append(runway)
+
+                present += 1
+
+            else:
+                missing += 1
 
 
                 #runways.append(runway) #runways[i][0] is runway, runways [i][1] is timestamp
@@ -53,6 +62,11 @@ for folder in os.listdir(os.getcwd() + '\\data\\departure_flights'):
 
                 elif realrunway == 16 or realrunway == 34:
                     runway16.append(runway)
+
+                present += 1
+
+            else:
+                missing += 1
                 #runways.append(runway)
                 # Dit is dus je runway + de timestamp van landen.
 
@@ -65,6 +79,7 @@ print(runway14)
 print("runway 16")
 print(runway16)
 
+print(present, missing, missing / (present+missing))
 
 
 #if "runway_usage" not in os.listdir(os.getcwd() + "\\data"):
