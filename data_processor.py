@@ -26,6 +26,13 @@ for f in range(0, min(len(arrival_list), flight_num)):
         data["heading_change"] = temp["track"] - data["track"]
         data.loc[data["heading_change"] <= -180, ["heading_change"]] += 360
         data.loc[data["heading_change"] >= 180, ["heading_change"]] -= 360
+        data["geo_track"] = np.degrees(np.arctan2(temp["longitude"] - data["longitude"],
+                                                temp["latitude"] - data["latitude"])) + 180
+        temp = deepcopy(data)
+        temp = temp.shift()
+        data["geo_track_change"] = temp["geo_track"] - data["geo_track"]
+        data.loc[data["geo_track_change"] <= -180, ["geo_track_change"]] += 360
+        data.loc[data["geo_track_change"] >= 180, ["geo_track_change"]] -= 360
 
         data.to_csv(f'data\\arrival_modified\\{arrival_list[f]}\\{file}', index=False)
         del temp
@@ -52,6 +59,13 @@ for f in range(0, min(len(departure_list), flight_num)):
         data["heading_change"] = temp["track"] - data["track"]
         data.loc[data["heading_change"] <= -180, ["heading_change"]] += 360
         data.loc[data["heading_change"] >= 180, ["heading_change"]] -= 360
+        data["geo_track"] = np.degrees(np.arctan2(temp["longitude"] - data["longitude"],
+                                                  temp["latitude"] - data["latitude"])) + 180
+        temp = deepcopy(data)
+        temp = temp.shift()
+        data["geo_track_change"] = temp["geo_track"] - data["geo_track"]
+        data.loc[data["geo_track_change"] <= -180, ["geo_track_change"]] += 360
+        data.loc[data["geo_track_change"] >= 180, ["geo_track_change"]] -= 360
 
         data.to_csv(f'data\\departure_modified\\{departure_list[f]}\\{file}', index=False)
         del temp
