@@ -49,18 +49,18 @@ for folder in os.listdir(os.getcwd() + '\\data\\arrival_flights'): # Folders
 
 
 ## DEPARTURES
-for folder in os.listdir(os.getcwd() + '\\data\\departure_flights'):
-    for file in os.listdir(os.getcwd() + '\\data\\departure_flights\\' + folder):
-        if file[-4:] == '.csv':
+#for folder in os.listdir(os.getcwd() + '\\data\\departure_flights'):
+#    for file in os.listdir(os.getcwd() + '\\data\\departure_flights\\' + folder):
+#        if file[-4:] == '.csv':
+#
+#            flight = pd.read_csv("data\\departure_flights\\" + folder + "\\" + file)
+#
+#            if len(set(flight["runway"])) == 1: # We don't have runway information for all flights. This covers situation where that occurs.
 
-            flight = pd.read_csv("data\\departure_flights\\" + folder + "\\" + file)
-
-            if len(set(flight["runway"])) == 1: # We don't have runway information for all flights. This covers situation where that occurs.
-
-                runway = [int(flight["runway"][0]), list(flight["timestamp"])[0], False]
-                realrunway = runway[0]
-                if realrunway == 10 or realrunway == 28:
-                    runway10.append(runway)
+#                runway = [int(flight["runway"][0]), list(flight["timestamp"])[0], False]
+#                realrunway = runway[0]
+#                if realrunway == 10 or realrunway == 28:
+#                    runway10.append(runway)
 
 #                elif realrunway == 14 or realrunway == 32:
 #                    runway14.append(runway)
