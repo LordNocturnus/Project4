@@ -11,7 +11,7 @@ def sort_runway_time(runwaylst):
     x = np.sort(a,order='date')
     return x
 
-
+i = 0
 
 #runways = []
 runway10 = []
@@ -20,7 +20,7 @@ runway16 = []
 ## ARRIVALS
 for folder in os.listdir(os.getcwd() + '\\data\\arrival_flights'): # Folders
     for file in os.listdir(os.getcwd() + '\\data\\arrival_flights\\' + folder): # Flights
-        if file[-4:] == '.csv': # Making sure we can do something with this file
+        if file[-4:] == '.csv' and i < 1000: # Making sure we can do something with this file
 
             flight = pd.read_csv("data\\arrival_flights\\" + folder + "\\" + file)
 
@@ -31,6 +31,8 @@ for folder in os.listdir(os.getcwd() + '\\data\\arrival_flights'): # Folders
 
                 if realrunway == 10 or realrunway == 28:
                    runway10.append(runway)
+
+            i += 1
 
 
 #                elif realrunway == 14 or realrunway == 32:
