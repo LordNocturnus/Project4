@@ -1,13 +1,12 @@
 import numpy as np
 import pandas as pd
 import os
-
 for file in os.listdir(os.getcwd() + '\\data\\arrival_processed'):
     if file[-4:] == '.csv':
         if file[:-4] not in os.listdir(os.getcwd() + "\\data\\arrival_processed_2"):
             os.mkdir(f"data\\arrival_processed_2\\{file[:-4]}")
 
-        callsigns = pd.read_csv(f"data\\arrival_processed\\{file}")
+        callsigns = pd.read_csv(f"data\\arrival_processed\\{file}", dtype = {'icao24':str, 'origin':str, 'callsign':str, 'flight_id':str})
 
         flights = set(callsigns["flight_id"])
 
@@ -24,7 +23,7 @@ for file in os.listdir(os.getcwd() + '\\data\\departure_processed'):
         if file[:-4] not in os.listdir(os.getcwd() + "\\data\\departure_processed_2"):
             os.mkdir(f"data\\departure_processed_2\\{file[:-4]}")
 
-        callsigns = pd.read_csv(f"data\\departure_processed\\{file}")
+        callsigns = pd.read_csv(f"data\\departure_processed\\{file}", dtype = {'icao24':str, 'destination':str, 'callsign':str, 'flight_id':str})
 
         flights = set(callsigns["flight_id"])
 
