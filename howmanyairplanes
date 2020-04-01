@@ -1,0 +1,46 @@
+import pandas as pd
+import os
+
+#definitions
+def sort_runway_time(runwaylst):
+    return sorted(runwaylst, key=lambda runwaylstitem: runwaylstitem[1])
+
+# Read data and sort them by day
+runways = []
+# arrivals
+i=0
+for folder in os.listdir(os.getcwd() + '\\data\\arrival_flights'): # Folders
+    for file in os.listdir(os.getcwd() + '\\data\\arrival_flights\\' + folder): # Flights
+        if file[-4:] == '.csv' and i < 1000: # Making sure we can do something with this file
+
+            flight = pd.read_csv("data\\arrival_flights\\" + folder + "\\" + file)
+
+            if len(set(flight["runway"])) == 1: # We don't have runway information for all flights. This covers situation where that occurs.
+
+                runway = [int(list(flight["runway"])[-1]), list(flight["timestamp"])[-1], True]
+                runways.append(runway)
+                i+=1
+
+#departure
+k=0
+for folder in os.listdir(os.getcwd() + '\\data\\departure_flights'):
+    for file in os.listdir(os.getcwd() + '\\data\\departure_flights\\' + folder):
+        if file[-4:] == '.csv' and k < 1000:
+
+            flight = pd.read_csv("data\\departure_flights\\" + folder + "\\" + file)
+
+            if len(set(flight["runway"])) == 1: # We don't have runway information for all flights. This covers situation where that occurs.
+
+                runway = [int(flight["runway"][0]), list(flight["timestamp"])[0], False]
+                runways.append(runway)
+                k+=1
+
+runways2 = sort_runway_time(runways)
+print(runways2)
+
+## determine how many airplanes are initially @zurich
+
+
+
+
+# check all airplanes per day, if arriving --> amount+=1 else amount-=1
