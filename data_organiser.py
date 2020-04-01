@@ -8,6 +8,8 @@ data_arrival = pq.read_table("data/arrival_dataset.parquet")
 data_arrival = data_arrival.to_pandas()
 flights = set(data_arrival["callsign"])
 
+print("ok")
+
 print("Found", len(flights), "different aircraft for arrival")
 if "arrival_processed" not in os.listdir(os.getcwd() + "\\data"):
     os.mkdir("data\\arrival_processed")

@@ -2,7 +2,7 @@
 
 import pandas as pd
 import os
-import numpy as np
+import numpy
 
 def sort_runway_time(runwaylst):
     #dtype = [['runway',int],['date','S19'],['departing/arriving',bool]]
