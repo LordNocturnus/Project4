@@ -3,6 +3,7 @@
 import pandas as pd
 from datetime import datetime
 import statistics
+import matplotlib.pyplot as plt
 
 aircrafts = pd.read_csv("data\\icao24.csv", dtype = {'icao24':str, 'arriving':bool})
 turnaround_times = []
@@ -24,10 +25,26 @@ for i, aircraft in aircrafts.iterrows():
         difference = d2-d1 #datetime.timedelta(d1,d2)
 
         #print(d1,d2,difference.seconds)
-        #if difference.seconds < 72000:
-        turnaround_times.append(difference.seconds)
+        if difference.seconds > 0: #and difference.seconds : #72000 and difference.seconds > 3600:
+            turnaround_times.append(difference.seconds)
         #else:
         #    crazy_turnaround_times.append(difference.seconds)
 
 print(turnaround_times)
-print(statistics.mean(turnaround_times), min(turnaround_times), max(turnaround_times))
+print(statistics.mean(turnaround_times), min(turnaround_times), max(turnaround_times), len(turnaround_times))
+
+xx = []
+yy = []
+
+for i in range(100):
+    xx.append(900*i)
+    yy.append(0)
+
+for turnaround in turnaround_times:
+    for i, x in enumerate(xx):
+        if turnaround - xx[i] < 900:
+            yy[i] += 1
+            break
+
+plt.plot(xx,yy)
+plt.show()
