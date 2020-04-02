@@ -17,7 +17,10 @@ for f in range(0, min(len(arrival_list), flight_num)):
 
     for file in os.listdir(os.getcwd() + f'\\data\\arrival_processed_2\\{arrival_list[f]}'):
         print(f"data\\arrival_processed_2\\{arrival_list[f]}\\{file}")
-        data = pd.read_csv(f"data\\arrival_processed_2\\{arrival_list[f]}\\{file}")
+        data = pd.read_csv(f"data\\arrival_processed_2\\{arrival_list[f]}\\{file}", dtype={'icao24': str,
+                                                                                           'destination': str,
+                                                                                           'callsign': str,
+                                                                                           'flight_id': str})
         data["geo_vs_baro_alt"] = data["geoaltitude"] - data["altitude"]
         temp = deepcopy(data)
         temp = temp.shift()
@@ -50,7 +53,10 @@ for f in range(0, min(len(departure_list), flight_num)):
 
     for file in os.listdir(os.getcwd() + f'\\data\\departure_processed_2\\{departure_list[f]}'):
         print(f"data\\departure_processed_2\\{departure_list[f]}\\{file}")
-        data = pd.read_csv(f"data\\departure_processed_2\\{departure_list[f]}\\{file}")
+        data = pd.read_csv(f"data\\departure_processed_2\\{departure_list[f]}\\{file}", dtype={'icao24': str,
+                                                                                               'destination': str,
+                                                                                               'callsign': str,
+                                                                                               'flight_id': str})
         data["geo_vs_baro_alt"] = data["geoaltitude"] - data["altitude"]
         temp = deepcopy(data)
         temp = temp.shift()
