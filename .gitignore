@@ -1,4 +1,3 @@
-*/data
-*/.idea
-*/.vscode
-*/__pycache__
+/data/*
+/.idea/*
+/.vscode/*
