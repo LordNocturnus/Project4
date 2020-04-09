@@ -1,45 +1,47 @@
 import pandas as pd
 import os
+import numpy as np
+
 
 #definitions
-def sort_runway_time(runwaylst):
-    return sorted(runwaylst, key=lambda runwaylstitem: runwaylstitem[1])
+def arraytolist(array):
+    lst = []
+    for i in range(len(array)):
+        a = list(array[i])
+        lst.append(a)
+    return lst
+
+def GetDates(lekker):
+    dates = []
+    for i in range(len(lekker)):
+        timestamp = lekker[i][1]
+        string = str(timestamp)
+        date = string[0:10]
+        dates.append(date)
+        b = set(dates)
+        realdates = sorted(list(b))
+    return realdates
+
 
 # Read data and sort them by day
-runways = []
+#aircrafts14 = np.array(pd.read_csv("data\\runway14_32.csv"))
+aircrafts10 = arraytolist(np.array(pd.read_csv("data\\runway10_28.csv")))
+aircrafts14 = arraytolist(np.array(pd.read_csv("data\\runway14_32.csv")))
+aircrafts16 = arraytolist(np.array(pd.read_csv("data\\runway16_34.csv")))
+
+aircrafts = sorted(aircrafts10 + aircrafts14 + aircrafts16, key=lambda aircraftsitem: aircraftsitem[1])
+#sorted(runwaylst, key=lambda runwaylstitem: runwaylstitem[1])
+dates = GetDates(aircrafts)
+print(dates)
+print(len(dates))
 # arrivals
-i=0
-for folder in os.listdir(os.getcwd() + '\\data\\arrival_flights'): # Folders
-    for file in os.listdir(os.getcwd() + '\\data\\arrival_flights\\' + folder): # Flights
-        if file[-4:] == '.csv' and i < 1000: # Making sure we can do something with this file
 
-            flight = pd.read_csv("data\\arrival_flights\\" + folder + "\\" + file)
-
-            if len(set(flight["runway"])) == 1: # We don't have runway information for all flights. This covers situation where that occurs.
-
-                runway = [int(list(flight["runway"])[-1]), list(flight["timestamp"])[-1], True]
-                runways.append(runway)
-                i+=1
 
 #departure
-k=0
-for folder in os.listdir(os.getcwd() + '\\data\\departure_flights'):
-    for file in os.listdir(os.getcwd() + '\\data\\departure_flights\\' + folder):
-        if file[-4:] == '.csv' and k < 1000:
 
-            flight = pd.read_csv("data\\departure_flights\\" + folder + "\\" + file)
-
-            if len(set(flight["runway"])) == 1: # We don't have runway information for all flights. This covers situation where that occurs.
-
-                runway = [int(flight["runway"][0]), list(flight["timestamp"])[0], False]
-                runways.append(runway)
-                k+=1
-
-runways2 = sort_runway_time(runways)
-print(runways2)
 
 ## determine how many airplanes are initially @zurich
-
+Ninit = 10
 
 
 
