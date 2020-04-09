@@ -26,7 +26,7 @@ for folder in os.listdir(os.getcwd() + '\\data\\arrival_flights'): # Folders
 
             if len(set(flight["runway"])) == 1: # We don't have runway information for all flights. This covers situation where that occurs.
 
-                runway = [int(list(flight["runway"])[-1]), list(flight["timestamp"])[-1], True]
+                runway = [int(list(flight["runway"])[-1]), list(flight["flight_id"])[-1], list(flight["icao24"])[-1], list(flight["timestamp"])[-1], True]
                 realrunway = runway[0]
 
                 if realrunway == 10 or realrunway == 28:
@@ -58,7 +58,7 @@ for folder in os.listdir(os.getcwd() + '\\data\\departure_flights'):
 
             if len(set(flight["runway"])) == 1: # We don't have runway information for all flights. This covers situation where that occurs.
 
-                runway = [int(flight["runway"][0]), list(flight["timestamp"])[0], False]
+                runway = [int(flight["runway"][0]), list(flight["flight_id"])[0], list(flight["icao24"])[0], list(flight["timestamp"])[0], False]
                 realrunway = runway[0]
                 if realrunway == 10 or realrunway == 28:
                     runway10.append(runway)
@@ -92,10 +92,12 @@ print(runway16)
 if "runway_usage" not in os.listdir(os.getcwd() + "\\data"):
     os.mkdir(f"data\\runway_usage")
 
-runway10panda = pd.DataFrame(list(runway10fin), columns =['runway', 'timestamp', 'arriving'])
+panda_columns = ['runway', 'flight_id', 'icao24', 'timestamp', 'arriving']
+
+runway10panda = pd.DataFrame(list(runway10fin), columns = panda_columns)
 runway10panda.to_csv('data\\runway_usage\\runway10_28.csv', index=False)
-runway14panda = pd.DataFrame(list(runway14fin), columns =['runway', 'timestamp', 'arriving'])
+runway14panda = pd.DataFrame(list(runway14fin), columns = panda_columns)
 runway14panda.to_csv('data\\runway_usage\\runway14_32.csv', index=False)
-runway16panda = pd.DataFrame(list(runway16fin), columns =['runway', 'timestamp', 'arriving'])
+runway16panda = pd.DataFrame(list(runway16fin), columns = panda_columns)
 runway16panda.to_csv('data\\runway_usage\\runway16_34.csv', index=False)
 
