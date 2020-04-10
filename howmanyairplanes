@@ -29,11 +29,11 @@ aircrafts10 = arraytolist(np.array(pd.read_csv("data\\runway10_28.csv")))
 aircrafts14 = arraytolist(np.array(pd.read_csv("data\\runway14_32.csv")))
 aircrafts16 = arraytolist(np.array(pd.read_csv("data\\runway16_34.csv")))
 
-aircrafts = sorted(aircrafts10 + aircrafts14 + aircrafts16, key=lambda aircraftsitem: aircraftsitem[1])
+flights = sorted(aircrafts10 + aircrafts14 + aircrafts16, key=lambda aircraftsitem: aircraftsitem[1])
 #sorted(runwaylst, key=lambda runwaylstitem: runwaylstitem[1])
-dates = GetDates(aircrafts)
-print(dates)
-print(len(dates))
+dates = GetDates(flights)
+#print(str(flights[0][2]))
+#print(len(dates))
 # arrivals
 
 
@@ -46,3 +46,27 @@ Ninit = 10
 
 
 # check all airplanes per day, if arriving --> amount+=1 else amount-=1
+
+amount = Ninit
+finallist = []
+dayamount = []
+for date in dates:
+    for i in range(len(flights)-1):
+        flightdatestring = str(flights[i][1])
+        flightdate =flightdatestring[0:10]
+        nextflightdatestring = str(flights[i+1])
+        nextflightdate = nextflightdatestring[0:10]
+        while flightdate == nextflightdate:
+            if flights[i][2] == 'True':
+                amount += 1
+                dayamount.append(amount)
+            else:
+                amount -= 1
+                dayamount.append(amount)
+        print(amount)
+    #daycapacity = max(dayamount)
+    #entry = [date,daycapacity]
+    #finallist.append(entry)
+
+#print(finallist)
+#print(len(finallist))
