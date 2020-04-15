@@ -1,125 +1,56 @@
-import pandas as pd 
+from traffic.data.samples import airbus_tree
+from traffic.data.samples import quickstart
+from traffic.data.samples import belevingsvlucht
+
 import matplotlib.pyplot as plt
-import sys
-import os
-import cartopy
-from cartopy import feature
-from cartopy.io.img_tiles import Stamen
 
-land = feature.NaturalEarthFeature(
-    "physical", "land", "10m", edgecolor="gray", facecolor="#dddddd", linewidth=0.5
-)
-borders = feature.NaturalEarthFeature(
-    "cultural",
-    "admin_0_boundary_lines_land",
-    "10m",
-    edgecolor="black",
-    facecolor="none",
-    linestyle=":",
-)
-lakes = feature.NaturalEarthFeature(
-    "physical",
-    "lakes",
-    "10m",
-    facecolor = "b",
-    alpha = 0.5
-)
-urban = feature.NaturalEarthFeature(
-    "cultural",
-    "populated_places",
-    "10m"
-)
+from traffic.core.projection import Amersfoort, GaussKruger, Lambert93, EuroPP
+from traffic.drawing import countries
 
-def custom_plot():
-    ax.add_feature(land)
-    ax.add_feature(borders)
-    ax.add_feature(lakes)
-    ax.set_extent([7.54, 9.8, 46.73, 48.16])
+with plt.style.context("traffic"):
+    fig = plt.figure()
 
-def Stamen_terrain_background_plot():
-    tiler = Stamen('terrain-background')
-    ax.set_extent([7.54, 9.8, 46.73, 48.16])
-    zoom = 10
-    ax.add_image(tiler, zoom)
-    ax.add_feature(borders)
-    ax.plot([8.535937,8.556704],[47.475701,47.445563],transform=cartopy.crs.Geodetic(), linewidth= 4, color = 'black')
+    # Choose the projection type
+    ax0 = fig.add_subplot(221, projection=EuroPP())
+    ax1 = fig.add_subplot(222, projection=Lambert93())
+    ax2 = fig.add_subplot(223, projection=Amersfoort())
+    ax3 = fig.add_subplot(224, projection=GaussKruger())
 
-def Stamen_plot():
-    tiler = Stamen('terrain')
-    ax.set_extent([7.54, 9.8, 46.73, 48.16])
-    zoom = 10
-    ax.add_image(tiler, zoom)
-    ax.add_feature(borders)
+    for ax in [ax0, ax1, ax2, ax3]:
+        ax.add_feature(countries())
+        # Maximum extent for the map
+        ax.set_global()
+        # Remove border and set transparency for background
+        ax.outline_patch.set_visible(False)
+        ax.background_patch.set_visible(False)
 
-ax = plt.subplot(111, projection=cartopy.crs.EuroPP())
-#custom_plot()
-Stamen_terrain_background_plot()
-#Stamen_plot()
+    # Flight.plot returns the result from Matplotlib as is
+    # Here we catch it to reuse the color of each trajectory
+    ret, *_ = quickstart["AFR27GH"].plot(ax0)
+    quickstart["AFR27GH"].plot(
+        ax1, color=ret.get_color(), linewidth=2
+    )
 
+    ret, *_ = belevingsvlucht.plot(ax0)
+    belevingsvlucht.plot(
+        ax2, color=ret.get_color(), linewidth=2
+    )
 
-def plot_arrival_track(lon, lat):
-    ax.plot(lon, lat, transform=cartopy.crs.Geodetic(), color= "b", linewidth=0.4)
+    ret, *_ = airbus_tree.plot(ax0)
+    airbus_tree.plot(
+        ax3, color=ret.get_color(), linewidth=2
+    )
 
-def plot_departure_track(lon,lat):
-    ax.plot(lon, lat, transform=cartopy.crs.Geodetic(), color= "r", linewidth=0.4)
+    # We reduce here the extent of the EuroPP() map
+    # between 8°W and 18°E, and 40°N and 60°N
+    ax0.set_extent((-8, 18, 40, 60))
 
+    params = dict(fontname="Ubuntu", fontsize=18, pad=12)
 
-def all_arrival_flights():
-    for folder in os.listdir(os.getcwd() + f'\\data\\arrival_flights'):
-        if os.path.isdir(os.getcwd() + f"\\data\\arrival_flights\\{folder}"):
-            for file in os.listdir(os.getcwd() + f"\\data\\arrival_flights\\{folder}"):
-                if file[-4:] == ".csv":
-                    arrival_file = pd.read_csv(f"data\\arrival_flights\\{folder}\\{file}").values
-                    lat,lon = arrival_file[:,7],arrival_file[:,8]
-                    plot_arrival_track(lon, lat)
-    
+    ax0.set_title("EuroPP()", **params)
+    ax1.set_title("Lambert93()", **params)
+    ax2.set_title("Amersfoort()", **params)
+    ax3.set_title("GaussKruger()", **params)
 
-def all_departure_flights():    
-    for folder in os.listdir(os.getcwd() + f'\\data\\departure_flights'):
-        if os.path.isdir(os.getcwd() + f"\\data\\departure_flights\\{folder}"):
-            for file in os.listdir(os.getcwd() + f"\\data\\departure_flights\\{folder}"):
-                if file[-4:] == ".csv":
-                    departure_file = pd.read_csv(f"data\\departure_flights\\{folder}\\{file}").values
-                    lat,lon = departure_file[:,8],departure_file[:,9]
-                    plot_departure_track(lon, lat)
-    
-
-def part_of_arrival_flights():
-    flight_num = 10
-
-    arrival_list = os.listdir(os.getcwd() + '\\data\\arrival_flights')
-
-    for f in range(0, min(len(arrival_list), flight_num)):
-        print(arrival_list[f])
-        if os.path.isdir(os.getcwd() + f"\\data\\arrival_flights\\{arrival_list[f]}"):
-            for file in os.listdir(os.getcwd() + f"\\data\\arrival_flights\\{arrival_list[f]}"):
-                if file[-4:] == ".csv":
-                    arrival_file = pd.read_csv(f"data\\arrival_flights\\{arrival_list[f]}\\{file}").values
-                    lat,lon = arrival_file[:,7],arrival_file[:,8]
-                    plot_arrival_track(lon, lat)    
-
-def part_of_departure_flights():
-    flight_num = 10
-
-    departure_list = os.listdir(os.getcwd() + '\\data\\departure_flights')
-
-    for f in range(0, min(len(departure_list), flight_num)):
-        print(departure_list[f])
-        if os.path.isdir(os.getcwd() + f"\\data\\departure_flights\\{departure_list[f]}"):
-            for file in os.listdir(os.getcwd() + f"\\data\\departure_flights\\{departure_list[f]}"):
-                if file[-4:] == ".csv":
-                    departure_file = pd.read_csv(f"data\\departure_flights\\{departure_list[f]}\\{file}").values
-                    lat,lon = departure_file[:,8],departure_file[:,9]
-                    plot_departure_track(lon, lat)    
-    
-
-
-part_of_arrival_flights()
-#part_of_departure_flights()
-
-#all_arrival_flights()
-#all_departure_flights()
-
-#plt.savefig("file.png",bbox = "tight",dpi = 3600)
-
-plt.show()
+    fig.tight_layout()
+    plt.show()
