@@ -1,5 +1,4 @@
 import pandas as pd
-import os
 import numpy as np
 
 
@@ -10,6 +9,7 @@ def arraytolist(array):
         a = list(array[i])
         lst.append(a)
     return lst
+
 
 def GetDates(lekker):
     dates = []
@@ -47,23 +47,24 @@ Ninit = 10
 
 # check all airplanes per day, if arriving --> amount+=1 else amount-=1
 
-amount = Ninit
 finallist = []
-dayamount = []
-for date in dates:
-    for i in range(len(flights)-1):
-        flightdatestring = str(flights[i][1])
-        flightdate =flightdatestring[0:10]
-        nextflightdatestring = str(flights[i+1])
-        nextflightdate = nextflightdatestring[0:10]
-        while flightdate == nextflightdate:
-            if flights[i][2] == 'True':
-                amount += 1
-                dayamount.append(amount)
-            else:
-                amount -= 1
-                dayamount.append(amount)
+dayamount = [Ninit]
+for i in range(len(flights)-1):
+    amount = dayamount[-1]
+    flightdatestring = str(flights[i][1])
+    flightdate = flightdatestring[0:10]
+    nextflightdatestring = str(flights[i + 1])
+    nextflightdate = nextflightdatestring[0:10]
+    if flightdate == nextflightdate:
+        if flights[i][2] == True:
+            amount += 1
+            dayamount.append(amount)
+        else:
+            amount -= 1
+            dayamount.append(amount)
         print(amount)
+    print(dayamount)
+
     #daycapacity = max(dayamount)
     #entry = [date,daycapacity]
     #finallist.append(entry)
