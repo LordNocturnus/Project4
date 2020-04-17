@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+'''
 
 #definitions
 def arraytolist(array):
@@ -39,7 +39,7 @@ dates = GetDates(flights)
 
 #departure
 
-
+'''
 ## determine how many airplanes are initially @zurich
 
 initial_amount = 0

@@ -31,7 +31,10 @@ for folder in os.listdir(os.getcwd() + '\\data\\departure_flights'): # Folders
 
             aircraft.append(entry)
 
-aircraft = sorted(sorted(aircraft, key=lambda aircraftitem: aircraftitem[2]), key=lambda aircraftitem: aircraftitem[0])
+#aircraft = sorted(sorted(aircraft, key=lambda aircraftitem: aircraftitem[2]), key=lambda aircraftitem: aircraftitem[0])
 
-aircraft_pandas = pd.DataFrame(aircraft, columns =['icao24', 'flight_id', 'timestamp', 'arriving'])
+
+#aircraft_pandas = pd.read_csv("data\\icao24.csv", dtype = {'icao24':str})
+
+aircraft_pandas = pd.DataFrame(aircraft, columns =['icao24', 'flight_id', 'timestamp', 'arriving']).sort_values(by=['icao24', 'timestamp'])
 aircraft_pandas.to_csv('data\\icao24.csv', index=False)
