@@ -18,26 +18,26 @@ aircrafts['arriving_s'] = aircrafts['arriving'].shift(-1)
 for i, aircraft in aircrafts.iterrows():
     #print(aircraft['arriving'],aircraft['arriving_s'],aircraft['icao24'],aircraft['icao24_s'])
 
-    if aircraft['arriving'] == True and aircraft['arriving_s'] == False and aircraft['icao24'] == aircraft['icao24_s'] and aircraft['flight_id'][0:3] not in ['SWR', 'EDW']: #!= 'SWR' and aircraft['flight_id'][0:3] != 'EDW':
+    if aircraft['arriving'] == True and aircraft['arriving_s'] == False and aircraft['icao24'] == aircraft['icao24_s'] and aircraft['flight_id'][0:3]: #not in ['SWR', 'EDW']: #!= 'SWR' and aircraft['flight_id'][0:3] != 'EDW':
         d1 = datetime.strptime(aircraft['timestamp'][:-6], "%Y-%m-%d %H:%M:%S")
         d2 = datetime.strptime(aircraft['timestamp_s'][:-6], "%Y-%m-%d %H:%M:%S")
 
         difference = d2-d1 #datetime.timedelta(d1,d2)
 
         #print(d1,d2,difference.seconds)
-        if difference.seconds > 0: #and difference.seconds : #72000 and difference.seconds > 3600:
+        if difference.seconds in range(0, 18000): #and difference.seconds : #72000 and difference.seconds > 3600:
             turnaround_times.append(difference.seconds)
-        #else:
-        #    crazy_turnaround_times.append(difference.seconds)
+        else:
+            crazy_turnaround_times.append(difference.seconds)
 
-print(turnaround_times)
+print(sorted(turnaround_times))
 print(statistics.mean(turnaround_times), min(turnaround_times), max(turnaround_times), len(turnaround_times))
 
 xx = []
 yy = []
 
-for i in range(100):
-    xx.append(900*i)
+for i in range(1000):
+    xx.append(18*i)
     yy.append(0)
 
 for turnaround in turnaround_times:
