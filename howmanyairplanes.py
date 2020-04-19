@@ -73,36 +73,42 @@ for icao in icaos:
 
 # check all airplanes per day, if arriving --> amount+=1 else amount-=1
 Ninit = initial_amount
-finallist = []
-dayamount = [Ninit]
-for date in dates:
-    initial_nextday = dayamount[-1]
-    dayamount.clear()
-    dayamount.append(initial_nextday)
-    amount = dayamount[-1]
-    for i in range(len(flights) - 1):
-        nextflightdatestring = str(flights[i + 1][3])
-        nextflightdate = nextflightdatestring[0:10]
-        if date == nextflightdate:
-            if flights[i][4] == True:
-                amount += 1
-                dayamount.append(amount)
-            elif flights[i][4] == False:
-                amount -= 1
-                if amount < 0:
-                    amount = 0
-                dayamount.append(amount)
-            # print('amount:', amount)
-    daycapacity = max(dayamount)
-    entry = [date,daycapacity]
-    finallist.append(entry)
+def final(initial):
+    finallist = []
+    dayamount = [initial]
+    for date in dates:
+        initial_nextday = dayamount[-1]
+        dayamount.clear()
+        dayamount.append(initial_nextday)
+        amount = dayamount[-1]
+        for i in range(len(flights) - 1):
+            nextflightdatestring = str(flights[i + 1][3])
+            nextflightdate = nextflightdatestring[0:10]
+            if date == nextflightdate:
+                if flights[i][4] == True:
+                    amount += 1
+                    dayamount.append(amount)
+                elif flights[i][4] == False:
+                    amount -= 1
+                    if amount < 0:
+                        amount = 0
+                    dayamount.append(amount)
+                # print('amount:', amount)
+        daycapacity = max(dayamount)
+        entry = [date, daycapacity]
+        finallist.append(entry)
+    return finallist
+x = final(221)
+y = final(0)
+idx = -34
+print(x[idx:-1] == y[idx:-1])
 
-
+'''
 panda_columns = ['date', 'maximum_amount_of_airplanes']
 
 finallistpanda = pd.DataFrame(finallist, columns=panda_columns)
 finallistpanda.to_csv("data\\runway_usage\\howmanyairplanes.csv",index=False)
 print('done')
-
+'''
 
 
