@@ -1,6 +1,6 @@
 import pandas as pd
 
-flights = pd.read_csv("data\\icao24.csv")
+flights = pd.read_csv("data\\icao24.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
 
 flights['next_icao'] = flights['icao24'].shift(+1)
 flights['next_arriving'] = flights['arriving'].shift(+1)
@@ -10,7 +10,7 @@ flights['last_arriving'] = flights['arriving'].shift(-1)
 ## determine how many airplanes are initially @zurich
 
 initial_amount = 0
-icao_list = pd.read_csv("data\\icao24.csv", dtype= {'icao24':str, 'arriving':bool})
+icao_list = flights
 
 icaos = set(icao_list['icao24'])
 

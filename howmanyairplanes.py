@@ -44,7 +44,9 @@ print(flights)
 ## determine how many airplanes are initially @zurich
 
 initial_amount = 0
-icao_list = pd.read_csv("data\\icao24.csv", dtype= {'icao24':str, 'arriving':bool})
+icao_list = pd.read_csv("data\\icao24.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
+icao_list['arriving_s'] = icao_list['arriving'].shift(-1)
+icao_list['icao24_s'] = icao_list['icao24'].shift(-1)
 
 icaos = set(icao_list['icao24'])
 
@@ -76,10 +78,12 @@ def final(initial):
     finallist = []
     dayamount = [initial]
     for date in dates:
-        initial_nextday = dayamount[-1]
-        dayamount.clear()
-        dayamount.append(initial_nextday)
-        amount = dayamount[-1]
+        #initial_nextday = dayamount[-1]
+        #dayamount.clear()
+        #dayamount.append(initial_nextday)
+        #amount = dayamount[-1]
+        dayamount = [dayamount[-1]]
+        amount = dayamount[0]
         for i in range(len(flights) - 1):
             nextflightdatestring = str(flights[i + 1][3])
             nextflightdate = nextflightdatestring[0:10]
@@ -89,11 +93,12 @@ def final(initial):
                     dayamount.append(amount)
                 elif flights[i][4] == False:
                     amount -= 1
-                    if amount < 0:
-                        amount = 0
+                    #if amount < 0:
+                    #    amount = 0
                     dayamount.append(amount)
                 # print('amount:', amount)
         daycapacity = max(dayamount)
+        print(dayamount)
         entry = [date, daycapacity]
         finallist.append(entry)
     return finallist
@@ -123,5 +128,4 @@ finallistpanda = pd.DataFrame(finallist, columns=panda_columns)
 finallistpanda.to_csv("data\\runway_usage\\howmanyairplanes.csv",index=False)
 print('done')
 '''
-
 
