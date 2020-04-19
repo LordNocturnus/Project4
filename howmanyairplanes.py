@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+from matplotlib import pyplot as pp
 
 
 
@@ -38,10 +38,9 @@ dates = GetDates(flights)
 #print(len(dates))
 # arrivals
 
-
+print(flights)
 #departure
-
-
+'''
 ## determine how many airplanes are initially @zurich
 
 initial_amount = 0
@@ -101,9 +100,23 @@ def final(initial):
 x = final(221)
 y = final(0)
 idx = -34
-print(x[idx:-1] == y[idx:-1])
+print(y)
+amountlist = []
+for i in range(len(y)):
+    wanted = y[i][1]
+    amountlist.append(wanted)
+amountlist2 = []
+for i in range(len(x)):
+    wanted = x[i][1]
+    amountlist2.append(wanted)
 
-'''
+pp.plot(dates,amountlist)
+pp.plot(dates,amountlist2)
+
+pp.show()
+
+
+
 panda_columns = ['date', 'maximum_amount_of_airplanes']
 
 finallistpanda = pd.DataFrame(finallist, columns=panda_columns)
