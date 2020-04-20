@@ -23,14 +23,14 @@ lakes = feature.NaturalEarthFeature(
 urban = feature.NaturalEarthFeature("cultural", "populated_places", "10m")
 
 
-def custom_plot():
+def custom_plot(ax):
     ax.add_feature(land)
     ax.add_feature(borders)
     ax.add_feature(lakes)
     ax.set_extent([7.54, 9.8, 46.73, 48.16])
 
 
-def Stamen_terrain_background_plot():
+def Stamen_terrain_background_plot(ax):
     tiler = Stamen("terrain-background")
     ax.set_extent([7.54, 9.8, 46.73, 48.16])
     zoom = 10
@@ -45,7 +45,7 @@ def Stamen_terrain_background_plot():
     )
 
 
-def tryout_plot():
+def tryout_plot(ax):
     tiler = Stamen("terrain")
     ax.set_extent([7.54, 9.8, 46.73, 48.16])
     zoom = 8
@@ -53,21 +53,23 @@ def tryout_plot():
     ax.add_feature(borders)
 
 
-ax = plt.subplot(111, projection=cartopy.crs.Mercator())
+# ax = plt.subplot(121, projection=cartopy.crs.Mercator())
+# Stamen_terrain_background_plot(ax)
 # custom_plot()
-Stamen_terrain_background_plot()
 # tryout_plot()
 
 
-def plot_arrival_track(lon, lat):
+def plot_arrival_track(ax, lon, lat):
     ax.plot(lon, lat, transform=cartopy.crs.Geodetic(), color="b", linewidth=0.4)
 
 
-def plot_departure_track(lon, lat):
+def plot_departure_track(ax, lon, lat):
     ax.plot(lon, lat, transform=cartopy.crs.Geodetic(), color="r", linewidth=0.4)
 
 
 def all_arrival_flights():
+    ax = plt.subplot(111, projection=cartopy.crs.Mercator())
+    Stamen_terrain_background_plot(ax)
     for folder in os.listdir(os.getcwd() + f"\\data\\arrival_flights"):
         if os.path.isdir(os.getcwd() + f"\\data\\arrival_flights\\{folder}"):
             for file in os.listdir(os.getcwd() + f"\\data\\arrival_flights\\{folder}"):
@@ -76,10 +78,12 @@ def all_arrival_flights():
                         f"data\\arrival_flights\\{folder}\\{file}"
                     ).values
                     lat, lon = arrival_file[:, 7], arrival_file[:, 8]
-                    plot_arrival_track(lon, lat)
+                    plot_arrival_track(ax, lon, lat)
 
 
 def all_departure_flights():
+    ax = plt.subplot(111, projection=cartopy.crs.Mercator())
+    Stamen_terrain_background_plot(ax)
     for folder in os.listdir(os.getcwd() + f"\\data\\departure_flights"):
         if os.path.isdir(os.getcwd() + f"\\data\\departure_flights\\{folder}"):
             for file in os.listdir(
@@ -90,10 +94,12 @@ def all_departure_flights():
                         f"data\\departure_flights\\{folder}\\{file}"
                     ).values
                     lat, lon = departure_file[:, 8], departure_file[:, 9]
-                    plot_departure_track(lon, lat)
+                    plot_departure_track(ax, lon, lat)
 
 
 def part_of_arrival_flights():
+    ax = plt.subplot(111, projection=cartopy.crs.Mercator())
+    Stamen_terrain_background_plot(ax)
     flight_num = 10
 
     arrival_list = os.listdir(os.getcwd() + "\\data\\arrival_flights")
@@ -109,10 +115,12 @@ def part_of_arrival_flights():
                         f"data\\arrival_flights\\{arrival_list[f]}\\{file}"
                     ).values
                     lat, lon = arrival_file[:, 7], arrival_file[:, 8]
-                    plot_arrival_track(lon, lat)
+                    plot_arrival_track(ax, lon, lat)
 
 
 def part_of_departure_flights():
+    ax = plt.subplot(111, projection=cartopy.crs.Mercator())
+    Stamen_terrain_background_plot(ax)
     flight_num = 10
 
     departure_list = os.listdir(os.getcwd() + "\\data\\departure_flights")
@@ -130,13 +138,19 @@ def part_of_departure_flights():
                         f"data\\departure_flights\\{departure_list[f]}\\{file}"
                     ).values
                     lat, lon = departure_file[:, 8], departure_file[:, 9]
-                    plot_departure_track(lon, lat)
+                    plot_departure_track(ax, lon, lat)
 
 
-def specific_runway_flights(runwayfile, direction):
+def specific_runway_flights(number_1, number_2, runwayfile, direction):
     runway_file = os.path.join(os.getcwd() + runwayfile)
     runway_values = pd.read_csv(runway_file).values
     flight_id_list = list(runway_values[:, 1])
+    ax1 = plt.subplot(121, projection=cartopy.crs.Mercator())
+    Stamen_terrain_background_plot(ax1)
+    ax2 = plt.subplot(122, projection=cartopy.crs.Mercator())
+    Stamen_terrain_background_plot(ax2)
+    ax1.legend([f"runway {number_1}"])
+    ax2.legend([f"runway {number_2}"])
     if direction.lower()[0] == "a":
         direction_folder, direction_check = (
             os.path.join(os.getcwd() + f"\\data\\arrival_flights"),
@@ -152,7 +166,8 @@ def specific_runway_flights(runwayfile, direction):
         if os.path.isdir(direction_folder + f"\\{folder}"):
             for file in os.listdir(direction_folder + f"\\{folder}"):
                 if file[:-4] in flight_id_list:
-                    arriving = runway_values[flight_id_list.index(file[:-4]), 4]
+                    index = flight_id_list.index(file[:-4])
+                    arriving = runway_values[index, 4]
                     if (arriving and direction_check) or (
                         arriving == False and direction_check == False
                     ):
@@ -160,23 +175,45 @@ def specific_runway_flights(runwayfile, direction):
                             flight_file = pd.read_csv(
                                 os.path.join(direction_folder + f"\\{folder}\\{file}")
                             ).values
-                            if direction_check:
-                                lat, lon = flight_file[:, 7], flight_file[:, 8]
-                                plot_arrival_track(lon, lat)
-                            else:
-                                lat, lon = flight_file[:, 8], flight_file[:, 9]
-                                plot_departure_track(lon, lat)
+                            if runway_values[index, 0] == number_1:
+                                if direction_check:
+                                    lat, lon = flight_file[:, 7], flight_file[:, 8]
+                                    plot_arrival_track(ax1, lon, lat)
+                                else:
+                                    lat, lon = flight_file[:, 8], flight_file[:, 9]
+                                    plot_departure_track(ax1, lon, lat)
+                            if runway_values[index, 0] == number_2:
+                                if direction_check:
+                                    lat, lon = flight_file[:, 7], flight_file[:, 8]
+                                    plot_arrival_track(ax2, lon, lat)
+                                else:
+                                    lat, lon = flight_file[:, 8], flight_file[:, 9]
+                                    plot_departure_track(ax2, lon, lat)
 
 
 # part_of_arrival_flights()
 # part_of_departure_flights()
-
-# specific_runway_flights("\\data\\runway16_34.csv" , "arrival" )
-specific_runway_flights("\\data\\runway16_34.csv", "departure")
+specific_runway_flights(10, 28, "\\data\\runway14_32.csv", "d")
 # all_arrival_flights()
 # all_departure_flights()
-
 # plt.savefig("file.png",bbox = "tight",dpi = 3600)
-# or (arriving==False and direction.lower()[0]=="d")
 
 plt.show()
+
+def check_runway_entries():
+    runway_values = pd.read_csv(os.path.join(os.getcwd() + "\\data\\runway14_32.csv")).values
+    i=0
+    k=0
+    for j in range(len(runway_values)): 
+        if runway_values[j,0]==14 and runway_values[j,4]==True:
+            i+=1
+        if runway_values[j,0]==32 and runway_values[j,4]==True:
+            k+=1
+    print(f"i is {i}")
+    print(f"k is {k}")
+        
+#check_runway_entries()
+
+
+
+
