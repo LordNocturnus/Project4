@@ -193,7 +193,7 @@ def specific_runway_flights(number_1, number_2, runwayfile, direction):
 
 # part_of_arrival_flights()
 # part_of_departure_flights()
-specific_runway_flights(10, 28, "\\data\\runway14_32.csv", "d")
+specific_runway_flights(10, 28, "\\data\\runway10_28.csv", "d")
 # all_arrival_flights()
 # all_departure_flights()
 # plt.savefig("file.png",bbox = "tight",dpi = 3600)
