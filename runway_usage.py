@@ -59,7 +59,7 @@ ax.set_title("flights per runway per hour")
 
 # for rw in [14, 16, 28, 34]:
 #     runway_ = runway_daily[runway_daily['runway']==rw][['day', 'count']]
-#     plt.plot(runway_['day'].values, runway_['count'].values, label=rw)
+#     plt.plot(runway_['day'].values, runway_['count'].values, label=rw) f
 
 # for rw in [14]:
 #     runway_ = runway_hourly[runway_hourly['runway']==rw][['hour', 'count']]
