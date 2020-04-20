@@ -1,16 +1,13 @@
 import pandas as pd
 
-flights = pd.read_csv("data\\icao24.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
-
-flights['next_icao'] = flights['icao24'].shift(+1)
-flights['next_arriving'] = flights['arriving'].shift(+1)
-flights['last_arriving'] = flights['arriving'].shift(-1)
-
+flights = pd.read_csv("data\\usefullflights.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
+print(flights['arriving'][0])
+print(flights)
 
 ## determine how many airplanes are initially @zurich
 
 initial_amount = 0
-icao_list = flights
+icao_list = pd.read_csv("data\\icao24.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
 
 icaos = set(icao_list['icao24'])
 
@@ -35,11 +32,10 @@ for icao in icaos:
 
 
 #print(initial_amount, '/', len(icaos))
-
+'''
 #check for everytimestamp how many airplanes there are on zurich
-amount = initial_amount
-useless = 0
-finallist = []
+useless =0
+arrivinglist = []
 for i, flight in flights.iterrows():
     if flight['icao24'] == flight['next_icao']:
         if ((flight['arriving'] == True and flight['next_arriving'] == True) or (flight['arriving'] == False and flight['next_arriving'] == False)) or ((flight['arriving'] == True and flight['last_arriving'] == True) or (flight['arriving'] == False and flight['last_arriving'] == False)) :
@@ -56,6 +52,21 @@ for i, flight in flights.iterrows():
             finallist.append(entry)
 
 print(finallist)
+'''
 
+amount = initial_amount
+print(amount)
+finallist = []
 
+for i, flight in flights.iterrows():
+    timestamp = flight['timestamp']
+    if flight['arriving'] == True:
+        amount += 1
+    elif flight['arriving'] == False:
+        amount -= 1
+        
+    entry = [timestamp, amount]
+    finallist.append(entry)
+    
+print(finallist)
 
