@@ -27,6 +27,7 @@ def Kmeans_single_flight(filelocation, N, list_of_Parameter, plot=True, return_c
                          colorshift=90):
     # initial values & setup
     C = "empty"
+    N = N
     file = filelocation
     df = pd.read_csv(file)
     # scaledata = df[["altitude","geoaltitude","groundspeed","latitude","longitude","track","vertical_rate","distance","runway"]]
@@ -76,4 +77,3 @@ def Kmeans_single_flight(filelocation, N, list_of_Parameter, plot=True, return_c
     else:
         centroids = km.cluster_centers_
         return df, centroids
-
