@@ -40,7 +40,6 @@ for rw in [14, 16, 28, 34, 10, 32]:
     runway_ = runway_daily[runway_daily["runway"] == rw][["day", "count"]]
 
 
-# print(pd.unique(runway_daily['runway']))
 
 def concept_sorter(row):
     weekday = row['dayname']
@@ -56,7 +55,7 @@ def concept_sorter(row):
         elif hour in [4,5]:
             concept = 'Early'
         elif hour == 1:
-            concept = 'Late'
+            concept = 'East'
         else:
             concept = None
     else:
@@ -69,7 +68,7 @@ def concept_sorter(row):
         elif hour in [4,5]:
             concept = 'Early'
         elif hour == 1:
-            concept = 'Late'
+            concept = 'East'
         else:
             concept = None
 
@@ -81,6 +80,7 @@ runway_hourly = df.set_index("timestamp").groupby([pd.Grouper(freq='H'), 'runway
 
 # grouping by hour
 flights_hourly = df.set_index("timestamp").groupby([pd.Grouper(freq='H')]).size()
+
 flights_hourly = flights_hourly.reset_index()
 flights_hourly.columns = ['timestamp', 'count']
 flights_hourly['hour'] = flights_hourly['timestamp'].dt.hour
@@ -88,31 +88,33 @@ flights_hourly['dayname'] = flights_hourly['timestamp'].dt.day_name()
 flights_hourly['concept'] = flights_hourly.apply(concept_sorter,axis=1)
 
 
-
-
+#stat analysis by concepts
 mean_concepts = flights_hourly.groupby('concept')['count'].mean()
+sum_concepts = flights_hourly.groupby('concept')['count'].sum()
+# sum_concepts = sum_concepts.reset_index()
+# sum_concepts['percent'] = sum_concepts['count'].apply(lambda x: x/38987)
+# print(sum_concepts)
+#plotting stuff
 
-ax = mean_concepts.plot.bar(x='concept', y='count', rot=0)
+
+mean_plot = mean_concepts.plot.bar(
+    x='concept',
+    y='count',
+    rot=0,
+    title="Mean Hourly Flight Movements by Concept"
+)
+
+sum_plot = sum_concepts.plot.pie(
+    x='concept',
+    y='count',
+    rot=0,
+    title="Total Flight Movements by Concept"
+)
+
 
 plt.show()
 
 
-
-# runway_hourly = runway_hourly.reset_index()
-# runway_hourly.columns = ['hour', 'runway', 'count']
-# print(runway_hourly.index.get_level_values('timestamp'))
-
-#
-# for rw in [14, 16, 28, 34, 10, 32]:
-#     runway_ = runway_hourly[runway_hourly["runway"] == rw][["hour", "count"]]
-#     print(runway_)
-
-# runway_hourly = df.set_index("timestamp")
-# runway_hourly = runway_hourly[runway_hourly['arriving'] == False]
-# runway_hourly = runway_hourly[runway_hourly['runway'] == 28]
-# runway_hourly = runway_hourly.groupby(runway_hourly.index.hour).size()
-
-# create concept hourly dataframes
 
 
 
