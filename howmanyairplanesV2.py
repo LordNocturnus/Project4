@@ -45,8 +45,8 @@ for i, flight in flights.iterrows():
         amount += 1
     elif flight['arriving'] == False:
         amount -= 1
-        if amount <0:
-            amount = 0
+        #if amount <0:
+        #    amount = 0
         
     entry = [timestamp, amount]
     finallist.append(entry)
