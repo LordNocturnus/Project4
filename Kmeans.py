@@ -25,9 +25,10 @@ def kmeans(data, N,
            dont_scale_parameters = "none",
            return_centroids = False,
            return_colors_rgb = False,
-           colorshift = 90):
+           colorshift = 90,
+           scale_function = scale):
 
-    # select desired parameters ["timestamp","callsign","icao24","lastseen","flight_id","origin"]
+    # select desired parameters
     if ignore_parameters != "none":
         df = data.drop(ignore_parameters,axis=1)
     else:
@@ -38,13 +39,13 @@ def kmeans(data, N,
         scaled_data = df
 
     # scale and execute kmeans
-    scaled_data = pd.DataFrame(scale(scaled_data),columns=scaled_data.columns)
+    scaled_data = pd.DataFrame(scale_function(scaled_data),columns=scaled_data.columns)
     df[scaled_data.columns] = scaled_data
     km = KMeans(n_clusters=N)
     groups = km.fit_predict(df)
     df["cluster"] = groups
 
-    # execute color function
+    # execute color function ["timestamp","callsign","icao24","lastseen","flight_id","origin"]
     if return_colors_rgb:
         C = np.char.array("empty")
         colours = colors(N,colorshift)
