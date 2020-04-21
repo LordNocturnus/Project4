@@ -1,7 +1,8 @@
 import pandas as pd
+from matplotlib import pyplot as pp
 
 flights = pd.read_csv("data\\usefullflights.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
-print(flights['arriving'][0])
+
 print(flights)
 
 ## determine how many airplanes are initially @zurich
@@ -32,30 +33,10 @@ for icao in icaos:
 
 
 #print(initial_amount, '/', len(icaos))
-'''
+
 #check for everytimestamp how many airplanes there are on zurich
-useless =0
-arrivinglist = []
-for i, flight in flights.iterrows():
-    if flight['icao24'] == flight['next_icao']:
-        if ((flight['arriving'] == True and flight['next_arriving'] == True) or (flight['arriving'] == False and flight['next_arriving'] == False)) or ((flight['arriving'] == True and flight['last_arriving'] == True) or (flight['arriving'] == False and flight['last_arriving'] == False)) :
-            useless += 1
-
-        else:
-            timestamp = flight['timestamp']
-            if flight['arriving'] == True:
-                amount += 1
-            elif flight['arriving'] == False:
-                amount -= 1
-
-            entry = [timestamp, amount]
-            finallist.append(entry)
-
-print(finallist)
-'''
-
-amount = initial_amount
-print(amount)
+#amount = initial_amount
+amount = 70
 finallist = []
 
 for i, flight in flights.iterrows():
@@ -64,9 +45,23 @@ for i, flight in flights.iterrows():
         amount += 1
     elif flight['arriving'] == False:
         amount -= 1
+        if amount <0:
+            amount = 0
         
     entry = [timestamp, amount]
     finallist.append(entry)
-    
-print(finallist)
 
+row = ['timestamp', 'amount']
+finalpanda = pd.DataFrame(finallist, columns=row)
+print(finalpanda)
+  
+#print(finallist)
+time = []
+amounts = []
+
+for i in range(0,len(finallist),1000):
+    time.append(i)
+    amounts.append(finallist[i][1])
+
+pp.plot(time,amounts)
+pp.show()
