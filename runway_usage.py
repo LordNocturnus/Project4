@@ -42,8 +42,47 @@ for rw in [14, 16, 28, 34, 10, 32]:
 
 # print(pd.unique(runway_daily['runway']))
 
+def concept_sorter(row):
+    weekday = row.index.dayofweek
+    hour = row.index.hour
+    weekend_days = [5,6]
+    week_days = [0,1,2,3,4]
+
+    if weekday in weekend_days:
+        if hour in [6, 7, 8]:
+            concept = 'South'
+        elif hour in [20, 21, 22, 23]:
+            concept = 'East'
+        elif hour in range(9, 20):
+            concept = 'North'
+        else:
+            concept = None
+    elif weekday in week_days:
+        if hour == 6:
+            concept = 'South'
+        elif hour in [21, 22, 23]:
+            concept = 'East'
+        elif hour in range(7, 21):
+            concept = 'North'
+        else:
+            concept = None
+    else:
+        concept = None
+
+    return concept
+
 # grouping by hour and runway
 runway_hourly = df.set_index("timestamp").groupby([pd.Grouper(freq='H'), 'runway']).size() #grouper(freq="H") groups per hour
+flights_hourly = df.set_index("timestamp").groupby([pd.Grouper(freq='H')]).size()
+
+# flights_hourly = flights_hourly[flights_hourly.index.hour == 6]
+
+flights_hourly = flights_hourly.apply(concept_sorter,axis=1)
+
+
+
+
+
 
 # runway_hourly = runway_hourly.reset_index()
 # runway_hourly.columns = ['hour', 'runway', 'count']
@@ -73,33 +112,36 @@ def is_weekend(df):
 # South Concept Dataframe
 scd_wdh = runway_hourly[runway_hourly.index.get_level_values('timestamp').hour == 6]
 scd_wdh = scd_wdh[~(scd_wdh.index.get_level_values('timestamp').dayofweek == (5 | 6))]
+# scd_wdh = scd_wdh.reset_index()
 
-scd_weh = runway_hourly[runway_hourly.index.get_level_values('timestamp').hour == (6 | 7 | 8)]
-scd_weh = scd_wdh[(scd_wdh.index.get_level_values('timestamp').dayofweek == (5 | 6))]
+# scd_weh = runway_hourly[runway_hourly.index.get_level_values('timestamp').hour == (6 | 7 | 8)]
+# scd_weh = scd_weh[(scd_wdh.index.get_level_values('timestamp').dayofweek == (5 | 6))]
+# scd_weh = scd_weh.reset_index()
 
-south_concept = pd.concat([scd_wdh, scd_weh])
+# south_concept = pd.concat([scd_wdh, scd_weh])
+
 
 # East Concept Dataframe
-ecd_wdh = runway_hourly[runway_hourly.index.get_level_values('timestamp').hour == (21 | 22 | 23 )]
-ecd_wdh = ecd_wdh[~(ecd_wdh.index.get_level_values('timestamp').dayofweek == (5 | 6))]
+# ecd_wdh = runway_hourly[runway_hourly.index.get_level_values('timestamp').hour == (21 | 22 | 23 )]
+# ecd_wdh = ecd_wdh[~(ecd_wdh.index.get_level_values('timestamp').dayofweek == (5 | 6))]
 
-ecd_weh = runway_hourly[runway_hourly.index.get_level_values('timestamp').hour == (20 | 21 | 22 | 23)]
-ecd_weh = ecd_wdh[(ecd_wdh.index.get_level_values('timestamp').dayofweek == (5 | 6))]
+# ecd_weh = runway_hourly[runway_hourly.index.get_level_values('timestamp').hour == (20 | 21 | 22 | 23)]
+# ecd_weh = ecd_weh[(ecd_wdh.index.get_level_values('timestamp').dayofweek == (5 | 6))]
 
-east_concept = pd.concat([ecd_wdh, ecd_weh])
+# east_concept = pd.concat([ecd_wdh, ecd_weh])
 
 # # North Concept Dataframe
-ncd_wdh = runway_hourly[runway_hourly.index.get_level_values('timestamp').hour == ( 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20)]
-ncd_wdh = ncd_wdh[~(ncd_wdh.index.get_level_values('timestamp').dayofweek == (5 | 6))]
+# ncd_wdh = runway_hourly[runway_hourly.index.get_level_values('timestamp').hour == ( 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20)]
+# ncd_wdh = ncd_wdh[~(ncd_wdh.index.get_level_values('timestamp').dayofweek == (5 | 6))]
+#
+# ncd_weh = runway_hourly[runway_hourly.index.get_level_values('timestamp').hour == (9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19)]
+# ncd_weh = ncd_weh[(ncd_wdh.index.get_level_values('timestamp').dayofweek == (5 | 6))]
+#
+# north_concept = pd.concat([ncd_wdh, ncd_weh])
 
-ncd_weh = runway_hourly[runway_hourly.index.get_level_values('timestamp').hour == (9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19)]
-ncd_weh = ncd_wdh[(ncd_wdh.index.get_level_values('timestamp').dayofweek == (5 | 6))]
+# in_concept = pd.concat([south_concept, north_concept, east_concept])
+# print(in_concept)
 
-north_concept = pd.concat([ncd_wdh, ncd_weh])
-
-in_concept = pd.concat([south_concept, north_concept, east_concept])
-print(in_concept)
-print(runway_hourly)
 
 # plotting stuff
 fig, ax = plt.subplots(figsize=(28, 8))
