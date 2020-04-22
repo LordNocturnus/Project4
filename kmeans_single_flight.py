@@ -8,7 +8,7 @@ from matplotlib.colors import hsv_to_rgb
 from mpl_toolkits.mplot3d import Axes3D
 
 
-# N integers to N distinguishable colors function, Note: works but recommend manually selecting colors if possible
+# N integers to N distinguishable color_range function, Note: works but recommend manually selecting color_range if possible
 def colors(n, colorshift):
     ret = []
     start = colorshift
@@ -50,7 +50,7 @@ def Kmeans_single_flight(filelocation,N,list_of_Parameter,plot=True,return_cents
         C_string = []
         for i in C:
             C_string.append(str(i))
-        df["colors"] = C_string
+        df["color_range"] = C_string
 
     # plot
     if plot:

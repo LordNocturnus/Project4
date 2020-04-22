@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 
-flight_num = 1000000
+flight_num = 10
 if 'arrival_modified' not in os.listdir(os.getcwd() + '\\data'):
     os.mkdir(os.getcwd() + f"\\data\\arrival_modified")
 
