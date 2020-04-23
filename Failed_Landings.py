@@ -19,6 +19,7 @@ for folder in os.listdir(os.getcwd() + f"\\data\\arrival_flights"):
 
                 for i in range(len(geoalt)):
                     if arrival_file[0,-2] == 'YUPZM_19073':
+                        print(failed_landings)
                         print('done')
                         quit()
 
@@ -34,11 +35,10 @@ for folder in os.listdir(os.getcwd() + f"\\data\\arrival_flights"):
                                 #print(arrival_file[i+3,0])
                                 #if 'arrival_file[0.2]' not in failed_landings:
                                 #if arrival_file[i,:] not in failed_landings:
-                                failed_landings.append(arrival_file[i,:])
+                                #failed_landings.append(arrival_file[i,:]) #for the full row of the timestep
+                                failed_landings.append(arrival_file[0,2])
                         elif geoalt[i + 1] == geoalt[-1]:
                             break
-
-print(failed_landings)
 #def Zurich_Altitude_check
     #Geo_Altitude_zurich = roughly 1417 feet
     #Range of minimum geoaltitudes recorded at landing: 1850 -- 1450 'feet'
