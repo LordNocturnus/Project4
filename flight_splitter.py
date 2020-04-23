@@ -4,8 +4,8 @@ import os
 
 for file in os.listdir(os.getcwd() + '\\data\\arrival_processed'):
     if file[-4:] == '.csv':
-        if file[:-4] not in os.listdir(os.getcwd() + "\\data\\arrival_processed_2"):
-            os.mkdir(f"data\\arrival_processed_2\\{file[:-4]}")
+        if file[:-4] not in os.listdir(os.getcwd() + "\\data\\arrival_flights"):
+            os.mkdir(f"data\\arrival_flights\\{file[:-4]}")
 
         callsigns = pd.read_csv(f"data\\arrival_processed\\{file}", dtype={'icao24': str,
                                                                            'origin': str,
@@ -18,14 +18,14 @@ for file in os.listdir(os.getcwd() + '\\data\\arrival_processed'):
             # print(flight, list(flights).index(flight) / len(flights))
             temp = callsigns[callsigns["flight_id"] == flight]
             temp = temp.sort_values("timestamp")
-            temp.to_csv(f'data\\arrival_processed_2\\{file[:-4]}\\{flight}.csv', index=False)
+            temp.to_csv(f'data\\arrival_flights\\{file[:-4]}\\{flight}.csv', index=False)
 
         print(file)
 
 for file in os.listdir(os.getcwd() + '\\data\\departure_processed'):
     if file[-4:] == '.csv':
-        if file[:-4] not in os.listdir(os.getcwd() + "\\data\\departure_processed_2"):
-            os.mkdir(f"data\\departure_processed_2\\{file[:-4]}")
+        if file[:-4] not in os.listdir(os.getcwd() + "\\data\\departure_flights"):
+            os.mkdir(f"data\\departure_flights\\{file[:-4]}")
 
         callsigns = pd.read_csv(f"data\\departure_processed\\{file}", dtype={'icao24': str,
                                                                              'destination': str,
@@ -38,6 +38,6 @@ for file in os.listdir(os.getcwd() + '\\data\\departure_processed'):
             # print(flight, list(flights).index(flight) / len(flights))
             temp = callsigns[callsigns["flight_id"] == flight]
             temp = temp.sort_values("timestamp")
-            temp.to_csv(f'data\\departure_processed_2\\{file[:-4]}\\{flight}.csv', index=False)
+            temp.to_csv(f'data\\departure_flights\\{file[:-4]}\\{flight}.csv', index=False)
 
         print(file)
