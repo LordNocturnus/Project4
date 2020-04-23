@@ -2,7 +2,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 import os
+import time
 import cartopy
+from datetime import datetime
 from cartopy import feature
 from cartopy.io.img_tiles import Stamen
 
@@ -67,9 +69,61 @@ def plot_departure_track(ax, lon, lat,alpha_value):
     ax.plot(lon, lat, transform=cartopy.crs.Geodetic(), color="r", linewidth=0.4, alpha=alpha_value)
 
 
+def part_of_flights(start,end):
+    start_time = time.time()
+    icao_data = pd.read_csv(os.path.join(os.getcwd()+"\\data\\icao24.csv"))
+    icao_data = icao_data.sort_values("timestamp")
+    print(pd.array(icao_data["timestamp"])[0],pd.array(icao_data["timestamp"])[-1])
+    start_date = datetime.strptime(start,"%Y-%m-%d %H:%M:%S+00:00")
+    end_date = datetime.strptime(end,"%Y-%m-%d %H:%M:%S+00:00")
+    icao_data["timestamp"] = [datetime.strptime(date,"%Y-%m-%d %H:%M:%S+00:00") for date in pd.array(icao_data["timestamp"])]
+    condition = (icao_data["timestamp"]>= start_date) & (icao_data["timestamp"] <= end_date)
+    part_of_dataframe = icao_data[condition]
+    #Now we have the desired part of the dataframe
+    flight_id_list = list(part_of_dataframe["flight_id"])
+    flights = [os.path.join(os.getcwd() + f"\\data\\arrival_flights"),
+             os.path.join(os.getcwd() + f"\\data\\departure_flights")]
+    found = 0
+    print(len(flight_id_list))
+    found_list = []
+    for item in flights:
+        for folder in os.listdir(item):
+            if os.path.isdir(item + f"\\{folder}"):
+                for file in os.listdir(item + f"\\{folder}"):
+                    if file[:-4] in flight_id_list:
+                        #index = flight_id_list.index(file[:-4])
+                        #arriving = pd.array(part_of_dataframe["arriving"])[index]
+                        if file[-4:] == ".csv":
+                            #flight_file = pd.read_csv(
+                            #    os.path.join(item + f"\\{folder}\\{file}")
+                            #).values
+                            found+=1
+                            found_list.append(file[:-4])
+                            
+                            #if arriving:
+                            #    #lat, lon = flight_file[:, 7], flight_file[:, 8]
+                            #    #plot_arrival_track(ax, lon, lat,1)
+                            #    if found == len(flight_id_list): 
+                            #        print(found,len(flight_id_list))
+                            #        break    
+                            #else:
+                            #    #lat, lon = flight_file[:, 8], flight_file[:, 9]
+                            #    #plot_departure_track(ax, lon, lat,1)
+                            #    if found == len(flight_id_list): 
+                            #        print(found,len(flight_id_list))
+                            #        break 
+    print(found)                 
+    troubleshoot = []
+    for item in flight_id_list:
+        if item not in found_list: troubleshoot.append(item)
+    print(len(troubleshoot))
+    print(time.time()-start_time)
+    missing_data = pd.DataFrame(troubleshoot)
+    missing_data.to_csv('missing_data.csv')
+    
+
+
 def all_arrival_flights():
-    ax = plt.subplot(111, projection=cartopy.crs.Mercator())
-    Stamen_terrain_background_plot(ax)
     for folder in os.listdir(os.getcwd() + f"\\data\\arrival_flights"):
         if os.path.isdir(os.getcwd() + f"\\data\\arrival_flights\\{folder}"):
             for file in os.listdir(os.getcwd() + f"\\data\\arrival_flights\\{folder}"):
@@ -82,8 +136,6 @@ def all_arrival_flights():
 
 
 def all_departure_flights():
-    ax = plt.subplot(111, projection=cartopy.crs.Mercator())
-    Stamen_terrain_background_plot(ax)
     for folder in os.listdir(os.getcwd() + f"\\data\\departure_flights"):
         if os.path.isdir(os.getcwd() + f"\\data\\departure_flights\\{folder}"):
             for file in os.listdir(
@@ -97,9 +149,7 @@ def all_departure_flights():
                     plot_departure_track(ax, lon, lat,0.02)
 
 
-def part_of_arrival_flights():
-    ax = plt.subplot(111, projection=cartopy.crs.Mercator())
-    Stamen_terrain_background_plot(ax)
+def first_N_arrival_flights():
     flight_num = 10
 
     arrival_list = os.listdir(os.getcwd() + "\\data\\arrival_flights")
@@ -118,9 +168,7 @@ def part_of_arrival_flights():
                     plot_arrival_track(ax,lon,lat,1)
 
 
-def part_of_departure_flights():
-    ax = plt.subplot(111, projection=cartopy.crs.Mercator())
-    Stamen_terrain_background_plot(ax)
+def first_N_departure_flights():
     flight_num = 10
 
     departure_list = os.listdir(os.getcwd() + "\\data\\departure_flights")
@@ -229,17 +277,25 @@ def specific_runway_arrival_and_departure(number_1, number_2, runwayfile):
                                     lat, lon = flight_file[:, 8], flight_file[:, 9]
                                     plot_departure_track(ax2, lon, lat,0.02)
 
-plt.figure(figsize=(16,9))
 
-#part_of_arrival_flights()
-#part_of_departure_flights()
+plt.figure(figsize=(16,9))
+ax = plt.subplot(111, projection=cartopy.crs.Mercator())
+Stamen_terrain_background_plot(ax)
+
+#first_N_arrival_flights()
+#first_N_departure_flights()
 #specific_runway_flights(14, 32, "\\data\\runway14_32.csv", "arrival")
 #specific_runway_arrival_and_departure(10,28,"\\data\\runway10_28.csv")
 #all_arrival_flights()
 #all_departure_flights()
-#plt.savefig("file.pdf",bbox = "tight")
 
-plt.show()
+part_of_flights("2019-10-01 04:01:12+00:00","2019-11-30 22:13:46+00:00")
+#part_of_flights("2019-11-14 10:55:15+00:00","2019-11-15 12:26:40+00:00")
+
+#plt.savefig("file.pdf",bbox = "tight")
+#plt.show()
+
+
 
 def filesaver():
     filesaving = [(10,28),(14,32),(16,34)]
