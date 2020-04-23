@@ -28,14 +28,13 @@ for folder in os.listdir(os.getcwd() + f"\\data\\arrival_flights"):
                             #print('Descending')
                         if geoalt[i] > geoalt[i-1] and geoalt[i] != geoalt[-1]:
                             if geoalt[i + 1] > geoalt[i] and geoalt[i + 1] != geoalt[-1] and geoalt[i + 2] > geoalt[i + 1] and geoalt[i + 2] != geoalt[-1]:
-                                print('failed landing attempt')
-                                print(arrival_file[0,-2])
-                                print(arrival_file[0,2])
-                                print(arrival_file[i+3,0])
+                                #print('failed landing attempt')
+                                #print(arrival_file[0,-2])
+                                #print(arrival_file[0,2])
+                                #print(arrival_file[i+3,0])
                                 #if 'arrival_file[0.2]' not in failed_landings:
                                 #if arrival_file[i,:] not in failed_landings:
                                 failed_landings.append(arrival_file[i,:])
-
                         elif geoalt[i + 1] == geoalt[-1]:
                             break
 
