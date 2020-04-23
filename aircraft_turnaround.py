@@ -25,7 +25,7 @@ for i, aircraft in aircrafts.iterrows():
         difference = d2-d1 #datetime.timedelta(d1,d2)
 
         #print(d1,d2,difference.seconds)
-        if difference.seconds in range(0, 18000): #and difference.seconds : #72000 and difference.seconds > 3600:
+        if difference.seconds in range(2500, 7500): #and difference.seconds : #72000 and difference.seconds > 3600:
             turnaround_times.append(difference.seconds)
         else:
             crazy_turnaround_times.append(difference.seconds)
@@ -33,11 +33,13 @@ for i, aircraft in aircrafts.iterrows():
 print(sorted(turnaround_times))
 print(statistics.mean(turnaround_times), min(turnaround_times), max(turnaround_times), len(turnaround_times))
 
+print(len(crazy_turnaround_times) / (len(turnaround_times+crazy_turnaround_times)))
+
 xx = []
 yy = []
 
 for i in range(1000):
-    xx.append(18*i)
+    xx.append(36*i)
     yy.append(0)
 
 for turnaround in turnaround_times:

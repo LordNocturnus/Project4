@@ -1,14 +1,14 @@
 import pandas as pd
 from matplotlib import pyplot as pp
 
-flights = pd.read_csv("data\\usefullflights.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
+flights = pd.read_csv("data\\useful_flights.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
 
 print(flights)
 
 ## determine how many airplanes are initially @zurich
 
 initial_amount = 0
-icao_list = pd.read_csv("data\\icao24.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
+icao_list = pd.read_csv("data\\icao24.csv", dtype= {'icao24':str, 'arriving':bool})
 
 icaos = set(icao_list['icao24'])
 
@@ -35,8 +35,8 @@ for icao in icaos:
 #print(initial_amount, '/', len(icaos))
 
 #check for everytimestamp how many airplanes there are on zurich
-#amount = initial_amount
-amount = 70
+amount = initial_amount
+#amount = 70
 finallist = []
 
 for i, flight in flights.iterrows():
