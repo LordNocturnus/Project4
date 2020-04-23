@@ -4,7 +4,7 @@ import sys
 import os
 import numpy as np
 
-failed_landings = np.empty(0)
+failed_landings = []
 
 for folder in os.listdir(os.getcwd() + f"\\data\\arrival_flights"):
     if os.path.isdir(os.getcwd() + f"\\data\\arrival_flights\\{folder}"):
@@ -34,7 +34,7 @@ for folder in os.listdir(os.getcwd() + f"\\data\\arrival_flights"):
                                 print(arrival_file[i+3,0])
                                 #if 'arrival_file[0.2]' not in failed_landings:
                                 #if arrival_file[i,:] not in failed_landings:
-                                failed_landings.np.append(arrival_file[i,:])
+                                failed_landings.append(arrival_file[i,:])
 
                         elif geoalt[i + 1] == geoalt[-1]:
                             break
