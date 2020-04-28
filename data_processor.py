@@ -3,19 +3,13 @@ import numpy as np
 import pandas as pd
 import os
 
-flight_num = 1000000
+flight_num = 1000
 if 'arrival_modified' not in os.listdir(os.getcwd() + '\\data'):
     os.mkdir(os.getcwd() + f"\\data\\arrival_modified")
 
 arrival_list = os.listdir(os.getcwd() + '\\data\\arrival_flights')
 
-temp = pd.read_csv(f"data\\arrival_flights\\2FPLF\\2FPLF_3247.csv", dtype={'icao24': str,
-                                                                           'destination': str,
-                                                                           'callsign': str,
-                                                                           'flight_id': str})
-data_limit_arrival = pd.DataFrame([temp.min(axis=0, skipna=True, numeric_only=True),
-                                   temp.max(axis=0, skipna=True, numeric_only=True)])
-data_mean_arrival = []
+data_arrival = []
 
 for f in range(0, len(arrival_list)):
     if arrival_list[f] not in os.listdir(os.getcwd() + '\\data\\arrival_modified'):
@@ -48,12 +42,7 @@ for f in range(0, len(arrival_list)):
         data["vel_change"] = temp["groundspeed"] - data["groundspeed"]
         if f < flight_num:
             data.to_csv(f'data\\arrival_modified\\{arrival_list[f]}\\{file}', index=False)
-        data_limit_arrival = pd.DataFrame(
-            [data_limit_arrival.min(axis=0, skipna=True, numeric_only=True),
-             data_limit_arrival.max(axis=0, skipna=True, numeric_only=True),
-             data.min(axis=0, skipna=True, numeric_only=True),
-             data.max(axis=0, skipna=True, numeric_only=True)])
-        data_mean_arrival.append(data.mean(axis=0, skipna=True, numeric_only=True))
+        data_arrival.append(data)
         del temp
         del data
 
@@ -105,10 +94,9 @@ for f in range(0, min(len(departure_list), flight_num)):
         del temp
         del data'''
 
-data_mean_arrival = pd.DataFrame(data_mean_arrival)
-data_limit_arrival = pd.DataFrame([data_limit_arrival.min(axis=0, skipna=True, numeric_only=True),
-                                   data_mean_arrival.mean(axis=0, skipna=True, numeric_only=True),
-                                   data_limit_arrival.max(axis=0, skipna=True, numeric_only=True)])
+data_arrival = pd.concat(data_arrival)
+data_limit_arrival = pd.DataFrame([data_arrival.std(axis=0, skipna=True, numeric_only=True),
+                                   data_arrival.mean(axis=0, skipna=True, numeric_only=True)])
 
 '''data_mean_departure = pd.DataFrame(data_mean_departure)
 data_limit_departure = pd.DataFrame([data_limit_departure.min(axis=0, skipna=True, numeric_only=True),
