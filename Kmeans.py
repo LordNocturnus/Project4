@@ -9,7 +9,10 @@ from matplotlib.colors import hsv_to_rgb
 
 def scaling(data, limits, width=2):
     for c in limits.columns:
-        data[c] = (data[c] - limits[c][1]) / (limits[c][2] - limits[c][0]) * width
+        try:
+            data[c] = (data[c] - limits[c][1]) / (limits[c][2] - limits[c][0]) * width
+        except:
+            pass
     return data
 
 
@@ -24,7 +27,6 @@ def color_range(n, colorshift):
     ret = np.zeros((n, 3), dtype=np.float)
     for i in range(n):
         A = hsv_to_rgb(np.array([(h + step * i) / 360, s / 100, v / 100]))
-        print(A)
         ret[i] = A
     return ret
 

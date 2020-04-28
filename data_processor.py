@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 
-flight_num = 10
+flight_num = 1000000
 if 'arrival_modified' not in os.listdir(os.getcwd() + '\\data'):
     os.mkdir(os.getcwd() + f"\\data\\arrival_modified")
 
@@ -17,7 +17,7 @@ data_limit_arrival = pd.DataFrame([temp.min(axis=0, skipna=True, numeric_only=Tr
                                    temp.max(axis=0, skipna=True, numeric_only=True)])
 data_mean_arrival = []
 
-for f in range(0, min(len(arrival_list), flight_num)):
+for f in range(0, len(arrival_list)):
     if arrival_list[f] not in os.listdir(os.getcwd() + '\\data\\arrival_modified'):
         os.mkdir(os.getcwd() + f"\\data\\arrival_modified\\{arrival_list[f]}")
 
@@ -27,14 +27,14 @@ for f in range(0, min(len(arrival_list), flight_num)):
                                                                                        'destination': str,
                                                                                        'callsign': str,
                                                                                        'flight_id': str})
-        data["geo_vs_baro_alt"] = data["geoaltitude"] - data["altitude"]
+        #data["geo_vs_baro_alt"] = data["geoaltitude"] - data["altitude"]
         temp = deepcopy(data)
         temp = temp.shift()
         data["geo_change"] = temp["geoaltitude"] - data["geoaltitude"]
-        data["alt_change"] = temp["altitude"] - data["altitude"]
-        data["heading_change"] = temp["track"] - data["track"]
-        data.loc[data["heading_change"] <= -180, ["heading_change"]] += 360
-        data.loc[data["heading_change"] >= 180, ["heading_change"]] -= 360
+        #data["alt_change"] = temp["altitude"] - data["altitude"]
+        #data["heading_change"] = temp["track"] - data["track"]
+        #data.loc[data["heading_change"] <= -180, ["heading_change"]] += 360
+        #data.loc[data["heading_change"] >= 180, ["heading_change"]] -= 360
         data["geo_track"] = np.degrees(np.arctan2(temp["longitude"] - data["longitude"],
                                                   temp["latitude"] - data["latitude"])) + 180
         temp = deepcopy(data)
@@ -43,7 +43,11 @@ for f in range(0, min(len(arrival_list), flight_num)):
         data.loc[data["geo_track_change"] <= -180, ["geo_track_change"]] += 360
         data.loc[data["geo_track_change"] >= 180, ["geo_track_change"]] -= 360
 
-        data.to_csv(f'data\\arrival_modified\\{arrival_list[f]}\\{file}', index=False)
+        temp = deepcopy(data)
+        temp = temp.shift()
+        data["vel_change"] = temp["groundspeed"] - data["groundspeed"]
+        if f < flight_num:
+            data.to_csv(f'data\\arrival_modified\\{arrival_list[f]}\\{file}', index=False)
         data_limit_arrival = pd.DataFrame(
             [data_limit_arrival.min(axis=0, skipna=True, numeric_only=True),
              data_limit_arrival.max(axis=0, skipna=True, numeric_only=True),
@@ -53,7 +57,7 @@ for f in range(0, min(len(arrival_list), flight_num)):
         del temp
         del data
 
-if 'departure_modified' not in os.listdir(os.getcwd() + '\\data'):
+'''if 'departure_modified' not in os.listdir(os.getcwd() + '\\data'):
     os.mkdir(os.getcwd() + f"\\data\\departure_modified")
 
 departure_list = os.listdir(os.getcwd() + '\\data\\departure_flights')
@@ -99,17 +103,17 @@ for f in range(0, min(len(departure_list), flight_num)):
              data.max(axis=0, skipna=True, numeric_only=True)])
         data_mean_departure.append(data.mean(axis=0, skipna=True, numeric_only=True))
         del temp
-        del data
+        del data'''
 
 data_mean_arrival = pd.DataFrame(data_mean_arrival)
 data_limit_arrival = pd.DataFrame([data_limit_arrival.min(axis=0, skipna=True, numeric_only=True),
                                    data_mean_arrival.mean(axis=0, skipna=True, numeric_only=True),
                                    data_limit_arrival.max(axis=0, skipna=True, numeric_only=True)])
 
-data_mean_departure = pd.DataFrame(data_mean_departure)
+'''data_mean_departure = pd.DataFrame(data_mean_departure)
 data_limit_departure = pd.DataFrame([data_limit_departure.min(axis=0, skipna=True, numeric_only=True),
                                      data_mean_departure.mean(axis=0, skipna=True, numeric_only=True),
-                                     data_limit_departure.max(axis=0, skipna=True, numeric_only=True)])
+                                     data_limit_departure.max(axis=0, skipna=True, numeric_only=True)])'''
 
 data_limit_arrival.to_csv(f'data\\arrival_modified\\limits.csv', index=False)
-data_limit_departure.to_csv(f'data\\departure_modified\\limits.csv', index=False)
+#data_limit_departure.to_csv(f'data\\departure_modified\\limits.csv', index=False)
