@@ -10,13 +10,15 @@ if 'arrival_modified' not in os.listdir(os.getcwd() + '\\data'):
 arrival_list = os.listdir(os.getcwd() + '\\data\\arrival_flights')
 
 data_arrival = []
+loitering = []
+removed = []
 
 for f in range(0, len(arrival_list)):
     if arrival_list[f] not in os.listdir(os.getcwd() + '\\data\\arrival_modified'):
         os.mkdir(os.getcwd() + f"\\data\\arrival_modified\\{arrival_list[f]}")
 
     for file in os.listdir(os.getcwd() + f'\\data\\arrival_flights\\{arrival_list[f]}'):
-        print(f"data\\arrival_flights\\{arrival_list[f]}\\{file}")
+
         data = pd.read_csv(f"data\\arrival_flights\\{arrival_list[f]}\\{file}", dtype={'icao24': str,
                                                                                        'destination': str,
                                                                                        'callsign': str,
@@ -25,10 +27,10 @@ for f in range(0, len(arrival_list)):
         temp = deepcopy(data)
         temp = temp.shift()
         data["geo_change"] = temp["geoaltitude"] - data["geoaltitude"]
-        #data["alt_change"] = temp["altitude"] - data["altitude"]
-        #data["heading_change"] = temp["track"] - data["track"]
-        #data.loc[data["heading_change"] <= -180, ["heading_change"]] += 360
-        #data.loc[data["heading_change"] >= 180, ["heading_change"]] -= 360
+        data["alt_change"] = temp["altitude"] - data["altitude"]
+        data["heading_change"] = temp["track"] - data["track"]
+        data.loc[data["heading_change"] <= -180, ["heading_change"]] += 360
+        data.loc[data["heading_change"] >= 180, ["heading_change"]] -= 360
         data["geo_track"] = np.degrees(np.arctan2(temp["longitude"] - data["longitude"],
                                                   temp["latitude"] - data["latitude"])) + 180
         temp = deepcopy(data)
@@ -40,9 +42,20 @@ for f in range(0, len(arrival_list)):
         temp = deepcopy(data)
         temp = temp.shift()
         data["vel_change"] = temp["groundspeed"] - data["groundspeed"]
+        data["usefull"] = np.full(len(data), True)
+        data["usefull"][0:2] = False
+        temp = [data.std(axis=0, skipna=True, numeric_only=True), data.mean(axis=0, skipna=True, numeric_only=True)]
+        for c in temp[0].index.values:
+            data.loc[temp[1][c] - temp[0][c] * 3 > data[c], "usefull"] = False
+            data.loc[temp[1][c] + temp[0][c] * 3 < data[c], "usefull"] = False
         if f < flight_num:
             data.to_csv(f'data\\arrival_modified\\{arrival_list[f]}\\{file}', index=False)
         data_arrival.append(data)
+        if abs(sum(data['geo_track_change'][2:])) >= 360:
+            loitering.append(file[:-4])
+        removed.append((len(data) - len(data[data['usefull']])) / len(data))
+        print(
+            f"data\\arrival_flights\\{arrival_list[f]}\\{file}: {(len(data) - len(data[data['usefull']])) / len(data)}")
         del temp
         del data
 
@@ -95,8 +108,8 @@ for f in range(0, min(len(departure_list), flight_num)):
         del data'''
 
 data_arrival = pd.concat(data_arrival)
-data_limit_arrival = pd.DataFrame([data_arrival.std(axis=0, skipna=True, numeric_only=True),
-                                   data_arrival.mean(axis=0, skipna=True, numeric_only=True)])
+data_limit_arrival = pd.DataFrame([data_arrival[data_arrival["usefull"]].std(axis=0, skipna=True, numeric_only=True),
+                                   data_arrival[data_arrival["usefull"]].mean(axis=0, skipna=True, numeric_only=True)])
 
 '''data_mean_departure = pd.DataFrame(data_mean_departure)
 data_limit_departure = pd.DataFrame([data_limit_departure.min(axis=0, skipna=True, numeric_only=True),
@@ -104,4 +117,11 @@ data_limit_departure = pd.DataFrame([data_limit_departure.min(axis=0, skipna=Tru
                                      data_limit_departure.max(axis=0, skipna=True, numeric_only=True)])'''
 
 data_limit_arrival.to_csv(f'data\\arrival_modified\\limits.csv', index=False)
-#data_limit_departure.to_csv(f'data\\departure_modified\\limits.csv', index=False)
+
+f = open("data\\turnaround.list", "w")
+for l in loitering:
+    f.write(l + "\n")
+f.close()
+
+print((len(data_arrival) - len(data_arrival[data_arrival['usefull']])) / len(data_arrival))
+# data_limit_departure.to_csv(f'data\\departure_modified\\limits.csv', index=False)
