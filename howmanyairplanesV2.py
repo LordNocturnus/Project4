@@ -1,7 +1,8 @@
 import pandas as pd
+import openpyxl
 from matplotlib import pyplot as pp
 
-flights = pd.read_csv("data\\usefullflights.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
+flights = pd.read_csv("data\\useful_flights.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
 
 print(flights)
 
@@ -35,8 +36,8 @@ for icao in icaos:
 #print(initial_amount, '/', len(icaos))
 
 #check for everytimestamp how many airplanes there are on zurich
-#amount = initial_amount
-amount = 70
+amount = initial_amount
+#amount = 70
 finallist = []
 
 for i, flight in flights.iterrows():
@@ -53,8 +54,10 @@ for i, flight in flights.iterrows():
 
 row = ['timestamp', 'amount']
 finalpanda = pd.DataFrame(finallist, columns=row)
-print(finalpanda)
-  
+finalpanda.to_csv("data\\runway_usage\\howmanyairplanes2.csv",index=False)
+#finalpanda.to_excel("data\\runway_usage\\howmanyairplanes.xlsx", sheet_name='howmanyairplanes', index=True)
+print('done')
+'''  
 #print(finallist)
 time = []
 amounts = []
@@ -65,3 +68,4 @@ for i in range(0,len(finallist),1000):
 
 pp.plot(time,amounts)
 pp.show()
+'''
