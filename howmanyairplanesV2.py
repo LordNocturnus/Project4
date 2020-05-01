@@ -9,7 +9,7 @@ print(flights)
 ## determine how many airplanes are initially @zurich
 
 initial_amount = 0
-icao_list = pd.read_csv("data\\icao24.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
+icao_list = pd.read_csv("data\\icao24.csv", dtype= {'icao24':str, 'arriving':bool})
 
 icaos = set(icao_list['icao24'])
 

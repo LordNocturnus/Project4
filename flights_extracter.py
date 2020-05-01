@@ -18,7 +18,7 @@ for i, flight in flights.iterrows():
         entry = [flight['icao24'], flight['flight_id'], flight['timestamp'], flight['arriving']]
         useful.append(entry)
     else:
-        entry = [flight['last_icao'], flight['last_arriving'], flight['icao24'], flight['arriving'], flight['next_icao'],
+        entry = [flight['timestamp'][0:11], flight['last_icao'], flight['last_arriving'], flight['icao24'], flight['arriving'], flight['next_icao'],
              flight['next_arriving']]
         not_useful.append(entry)
 
@@ -27,6 +27,7 @@ pandacolumns = ['icao', 'flight_id', 'timestamp', 'arriving']
 x = pd.DataFrame(useful, columns=pandacolumns)
 x.to_csv("data\\useful_flights.csv", index=False)
 
-y = pd.DataFrame(not_useful, columns = ['last_icao24', 'last_arriving', 'icao24', 'arriving', 'next_icao24', 'next_arriving'])
+y = pd.DataFrame(not_useful, columns = ['timestamp', 'last_icao24', 'last_arriving', 'icao24', 'arriving', 'next_icao24', 'next_arriving']).sort_values(by=['timestamp'])
+print(y['timestamp'].value_counts())
 y.to_csv("data\\not_useful_flights.csv", index = False)
 print('done')
