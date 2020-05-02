@@ -28,26 +28,23 @@ lst2 = []
 for i in range(len(dates)):
     date = dates[i]
     if i <= 6:
-        j = i
+        lst2.append([date,days[i]])
     else:
-        if i % 6 == 0 and lst2[i-1][1] is not 'tuesday':
-            j = 0
-        elif i % 7 == 0 and lst2[i-1][1] is not 'wednesday':
-            j = 1
-        elif i % 8 == 0 and lst2[i-1][1] is not 'thursday':
-            j = 2
-        elif i % 9 == 0 and lst2[i-1][1] is not 'friday':
-            j = 3
-        elif i % 10 == 0 and lst2[i-1][1] is not 'saturday':
-            j = 4
-        elif i % 11 == 0 and lst2[i-1][1] is not 'sunday':
-            j = 5
-        elif i % 12 == 0 and lst2[i-1][1] is not 'monday':
-            j = 6
+        if i % 6 == 0: #and lst2[i-1][1] is not 'tuesday':
+            lst2.append([date,'tuesday'])
+        elif i % 7 == 0: #and lst2[i-1][1] is not 'wednesday':
+            lst2.append([date,'wednesday'])
+        elif i % 8 == 0: #and lst2[i-1][1] is not 'thursday':
+            lst2.append([date,'thursday'])
+        elif i % 9 == 0: #and lst2[i-1][1] is not 'friday':
+            lst2.append([date,'friday'])
+        elif i % 10 == 0: #and lst2[i-1][1] is not 'saturday':
+            lst2.append([date,'saturday'])
+        elif i % 11 == 0: #and lst2[i-1][1] is not 'sunday':
+            lst2.append([date,'sunday'])
+        elif i % 12 == 0: #and lst2[i-1][1] is not 'monday':
+            lst2.append([date,'monday'])
 
 
-
-    day = days[j]
-    lst2.append([date,day])
 
 print(lst2)
