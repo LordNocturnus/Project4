@@ -1,5 +1,6 @@
 import pandas as pd
 from datetime import datetime
+from textwrap import wrap
 import matplotlib
 import scipy as sc
 import numpy as np
@@ -176,7 +177,8 @@ def part_of_total_flights(start_date, end_date, subplotnum, truncatenum, percent
     xfmt = matplotlib.dates.DateFormatter("%Y-%m-%d %H:%M:%S")
     ax.xaxis.set_major_formatter(xfmt)
     ax.plot(cleaned_flights_hourly['timestamp'].values, cleaned_flights_hourly['count'].values)
-    plt.title("Total Flight Movements per Hour (truncated above {})".format(truncatenum))
+    title = ax.set_title("\n".join(wrap(f"Total Flight Movements per Hour (truncated above {truncatenum})", 50)))
+    title.set_y(1.05)
     ax.axhline(y=lineheight, xmin=0.0, xmax=1.0, color='r', label="{}th percentile; n={}".format(percentile, rednum))
     ax.set_yticks(yticks)
     ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)

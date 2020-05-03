@@ -1,5 +1,6 @@
 import pandas as pd
 from datetime import datetime
+from textwrap import wrap
 import matplotlib
 import matplotlib.pyplot as plt
 import sys
@@ -16,7 +17,7 @@ def mpl_active_bounds(ax):
     ax.callbacks.connect("xlim_changed", on_xlims_change)
 
 
-def plot_aircraft_parking(dataframe, subplot_number):
+def plot_aircraft_parking(dataframe, subplot_number,start,end):
     dates = dataframe["timestamp"]
     if type(pd.array(dataframe["timestamp"])[0]) == str:
         # Convert dates list into datetime objects if not already
@@ -27,6 +28,8 @@ def plot_aircraft_parking(dataframe, subplot_number):
     xfmt = matplotlib.dates.DateFormatter("%Y-%m-%d %H:%M:%S")
     ax.xaxis.set_major_formatter(xfmt)
     plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    title = ax.set_title("\n".join(wrap(f"Amount of parked aircraft on ZRH between {start} and {end}", 50)))
+    title.set_y(1.05)    
     # plt.savefig("aircraft_parked.pdf",bbox= 'tight')
     mpl_active_bounds(ax)
 
@@ -37,7 +40,7 @@ def part_of_aircraft_parking(start, end, subplot_number):
     parking_data["timestamp"] = [datetime.strptime(date, "%Y-%m-%d %H:%M:%S+00:00")for date in pd.array(parking_data["timestamp"])]
     condition = (parking_data["timestamp"] >= start_date) & (parking_data["timestamp"] <= end_date)
     part_of_dataframe = parking_data[condition]
-    plot_aircraft_parking(part_of_dataframe, subplot_number)
+    plot_aircraft_parking(part_of_dataframe, subplot_number,start_date,end_date)
 
 
 # plot_aircraft_parking(parking_data,111)
