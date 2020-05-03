@@ -9,10 +9,8 @@ start,end = "2019-11-14 10:55:15+00:00","2019-11-15 12:26:40+00:00"
 truncate_val = 30
 percentile_val = 67
 
-# part_of_flights(start,end,121)
-# part_of_aircraft_parking(start,end,122)
-#We will have to input this into each subplot
-
-part_of_total_flights(start, end, 111, truncate_val, percentile_val)
+part_of_flights(start,end,231)
+part_of_aircraft_parking(start,end,232)
+part_of_total_flights(start, end, 233, truncate_val, percentile_val)
 
 plt.show()

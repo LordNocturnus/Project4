@@ -4,16 +4,14 @@ import matplotlib
 import scipy as sc
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-import pyModeS
-import pyarrow
+
 from IPython.core.display import display
 
 
 # data paths:
-path_runway10_28 = "data/runwaystuff/runway10_28.csv"
-path_runway14_32 = "data/runwaystuff/runway14_32.csv"
-path_runway16_34 = "data/runwaystuff/runway16_34.csv"
+path_runway10_28 = "data/runway10_28.csv"
+path_runway14_32 = "data/runway14_32.csv"
+path_runway16_34 = "data/runway16_34.csv"
 
 
 # import runway data
@@ -151,6 +149,13 @@ sum_concepts = flights_hourly.groupby('concept')['count'].sum()
 #     title="Total Flight Movements by Concept"
 # )
 
+def mpl_active_bounds(ax):
+    def on_xlims_change(event_ax):
+        
+        limits =  "new x-axis limits: "+'"'+ matplotlib.dates.num2date(event_ax.get_xlim()[0]).strftime("%Y-%m-%d %H:%M:%S+00:00")+'","'+matplotlib.dates.num2date(event_ax.get_xlim()[1]).strftime("%Y-%m-%d %H:%M:%S+00:00")+'"'
+        print(limits)
+    ax.callbacks.connect("xlim_changed", on_xlims_change)
+
 def part_of_total_flights(start_date, end_date, subplotnum, truncatenum, percentile):
 
     cleaned_flights_hourly = flights_hourly
@@ -168,7 +173,8 @@ def part_of_total_flights(start_date, end_date, subplotnum, truncatenum, percent
     limit_cleaned_flights_hourly = cleaned_flights_hourly[cleaned_flights_hourly['count'] > lineheight]
     rednum = limit_cleaned_flights_hourly['count'].size
 
-
+    xfmt = matplotlib.dates.DateFormatter("%Y-%m-%d %H:%M:%S")
+    ax.xaxis.set_major_formatter(xfmt)
     ax.plot(cleaned_flights_hourly['timestamp'].values, cleaned_flights_hourly['count'].values)
     plt.title("Total Flight Movements per Hour (truncated above {})".format(truncatenum))
     ax.axhline(y=lineheight, xmin=0.0, xmax=1.0, color='r', label="{}th percentile; n={}".format(percentile, rednum))
@@ -180,27 +186,29 @@ def part_of_total_flights(start_date, end_date, subplotnum, truncatenum, percent
 
     ax.scatter(limit_cleaned_flights_hourly['timestamp'].values, limit_cleaned_flights_hourly['count'].values,
                color='red')
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    mpl_active_bounds(ax)
 
-# max_hourly.unstack().plot(kind="bar", stacked=True)
-# plt.title("Maximum Flight Movements per Runway by Hour")
-# ax = plt.gca()
-# ytick = np.arange(0,150,5)
-# ax.set_yticks(ytick, minor=True)
-# ax.grid('off', which='major', axis='y', linestyle='--', linewidth=0.5)
-# ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
+ #max_hourly.unstack().plot(kind="bar", stacked=True)
+ #plt.title("Maximum Flight Movements per Runway by Hour")
+ #ax = plt.gca()
+ #ytick = np.arange(0,150,5)
+ #ax.set_yticks(ytick, minor=True)
+ #ax.grid('off', which='major', axis='y', linestyle='--', linewidth=0.5)
+ #ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
 
 
 
-# mean_hourly.unstack().plot(kind="bar", rot=0, stacked=True)
-# plt.title("Mean Flight Movements per Runway by Hour")
-# ax = plt.gca()
-# ytick = np.arange(0,75,5)
-# ax.set_yticks(ytick, minor=True)
-# ax.grid('off', which='major', axis='y', linestyle='--', linewidth=0.5)
-# ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
+#mean_hourly.unstack().plot(kind="bar", rot=0, stacked=True)
+#plt.title("Mean Flight Movements per Runway by Hour")
+#ax = plt.gca()
+#ytick = np.arange(0,75,5)
+#ax.set_yticks(ytick, minor=True)
+#ax.grid('off', which='major', axis='y', linestyle='--', linewidth=0.5)
+#ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
 
-part_of_total_flights('2019-10-01', "2019-11-30", 111, 30, 55)
-plt.show()
+#part_of_total_flights('2019-10-01', "2019-11-30", 111, 30, 55)
+#plt.show()
 
 
 
