@@ -26,7 +26,10 @@ for folder in os.listdir(os.getcwd() + '\\data\\arrival_flights'): # Folders
 
             if len(set(flight["runway"])) == 1: # We don't have runway information for all flights. This covers situation where that occurs.
 
-                runway = [int(list(flight["runway"])[-1]), list(flight["flight_id"])[-1], list(flight["icao24"])[-1], list(flight["timestamp"])[-1], True]
+                runway = [int(flight.iloc[-1, -1]), flight.iloc[-1, -2], flight.iloc[-1,5], flight.iloc[-1,1], True]
+
+
+
                 realrunway = runway[0]
 
                 if realrunway == 10 or realrunway == 28:
