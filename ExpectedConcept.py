@@ -8,6 +8,7 @@ flights = pd.read_csv("data\\addeddayforexpectedconcept.csv")
 # South concept, Mor-Fri [6-7), Sat-Sun [6-9): 2
 lst = []
 for i, flight in flights.iterrows():
+    date = flight['date']
     day = flight['day']
     hour = flight['timestamp'][0:2]
     inthour = int(hour)
@@ -21,9 +22,21 @@ for i, flight in flights.iterrows():
         if intminute in range(31,60):
             lst.append([wantedtimestamp,99])
 
+    elif (day == 'sat' or day == 'sun') or (date == '2019-10-03' or date == '2019-11-01'): #these are public hollidays in Baden-Würtemmberg according to: https://publicholidays.de/baden-wurttemberg/2019-dates/
+        if inthour in range(9,20):
+            lst.append([wantedtimestamp,0])
+        elif inthour in range(20,23):
+            lst.append([wantedtimestamp,1])
+        elif inthour == 23:
+            if intminute in range(0,31):
+                lst.append([wantedtimestamp,1])
+        elif inthour in range(6-9):
+            lst.append([wantedtimestamp,2])
 
 
-    elif (day is not 'sat' and day is not 'sun'):
+
+
+    elif (day is not 'sat' and day is not 'sun') and (date is not '2019-10-03' or date is not '2019-11-01'):
         if inthour in range(7,21):
             lst.append([wantedtimestamp, 0])
         elif inthour in range(21,23):
@@ -35,16 +48,7 @@ for i, flight in flights.iterrows():
             lst.append([wantedtimestamp,2])
 
 
-    elif (day == 'sat' or day == 'sun'):
-        if inthour in range(9,20):
-            lst.append([wantedtimestamp,0])
-        elif inthour in range(20,23):
-            lst.append([wantedtimestamp,1])
-        elif inthour == 23:
-            if intminute in range(0,31):
-                lst.append([wantedtimestamp,1])
-        elif inthour in range(6-9):
-            lst.append([wantedtimestamp,2])
+
 
 expectedcolumns = ['timestamp','ExpectedConcept']
 expectedlist = pd.DataFrame(lst,columns=expectedcolumns) #This dataframe has 1 flight less then the original amount of flights
