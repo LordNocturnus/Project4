@@ -26,9 +26,7 @@ df = pd.concat([runway10_28, runway14_32, runway16_34], ignore_index=True)
 df["timestamp"] = pd.to_datetime(df["timestamp"])
 
 
-# date stuff
-start_date = '2019-10-25'
-end_date = '2019-11-30'
+
 #______________________________________________________________________________________________________________________
 
 
@@ -67,8 +65,19 @@ def concept_sorter(row):
 
     return concept
 
-# grouping by hour and runway
-runway_hourly = df.set_index("timestamp").groupby([pd.Grouper(freq='H'), 'runway']).size() #grouper(freq="H") groups per hour
+
+
+
+# resampling by hour, grouping by runway/movement type
+arrivals_hourly = df[df['arriving'] == True].set_index("timestamp").groupby([pd.Grouper(freq='H'), 'runway']).size()
+departures_hourly = df[df['arriving'] == False].set_index("timestamp").groupby([pd.Grouper(freq='H'), 'runway']).size()
+runway_hourly = arrivals_hourly.to_frame().merge(departures_hourly.to_frame(), how='outer', left_index=True, right_index=True)
+runway_hourly.columns = ['arrivals', 'departures']
+runway_hourly = runway_hourly.fillna(0).astype(int)
+
+max_hourly = runway_hourly.groupby([runway_hourly.index.get_level_values('timestamp').hour, 'runway' ]).max()
+mean_hourly = runway_hourly.groupby([runway_hourly.index.get_level_values('timestamp').hour, 'runway' ]).mean()
+
 
 
 # grouping by hour
@@ -81,6 +90,18 @@ flights_hourly['dayname'] = flights_hourly['timestamp'].dt.day_name()
 flights_hourly['concept'] = flights_hourly.apply(concept_sorter,axis=1)
 
 # print(flights_hourly)
+
+
+
+
+
+
+
+
+
+
+
+
 
 #stat analysis by concepts
 mean_concepts = flights_hourly.groupby('concept')['count'].mean()
@@ -95,7 +116,7 @@ sum_concepts = flights_hourly.groupby('concept')['count'].sum()
 #plotting stuff
 
 # plt.figure(1, figsize=(35,8))
-# plt.title("flights per hour")
+# plt.title("Total Flight Movements per Hour")
 #
 # for cp in flights_hourly.concept.unique():
 #     conc_ = flights_hourly[flights_hourly['concept']==cp][['timestamp', 'count']]
@@ -130,14 +151,55 @@ sum_concepts = flights_hourly.groupby('concept')['count'].sum()
 #     title="Total Flight Movements by Concept"
 # )
 
+def part_of_total_flights(start_date, end_date, subplotnum, truncatenum, percentile):
 
-# plt.figure(3)
-# cleaned_flights_hourly = flights_hourly
-# cleaned_flights_hourly = cleaned_flights_hourly[cleaned_flights_hourly['count']> 40]
-# cleaned_flights_hourly = cleaned_flights_hourly.loc[cleaned_flights_hourly['timestamp'].between(start_date,end_date, inclusive=True)]
-# plt.plot(cleaned_flights_hourly['timestamp'].values, cleaned_flights_hourly['count'].values)
+    cleaned_flights_hourly = flights_hourly
+    cleaned_flights_hourly = cleaned_flights_hourly[cleaned_flights_hourly['count']> truncatenum]
+    cleaned_flights_hourly = cleaned_flights_hourly.loc[cleaned_flights_hourly['timestamp'].between(start_date,end_date, inclusive=True)]
 
-# plt.show()
+    lineheight = cleaned_flights_hourly['count'].quantile(percentile/100)
+
+    yticks = np.arange(0, 70, 5)
+    yticks = np.insert(yticks, 1, lineheight, 0)
+    yticks = np.sort(yticks)
+
+    ax = plt.subplot(subplotnum)
+
+    limit_cleaned_flights_hourly = cleaned_flights_hourly[cleaned_flights_hourly['count'] > lineheight]
+    rednum = limit_cleaned_flights_hourly['count'].size
+
+
+    ax.plot(cleaned_flights_hourly['timestamp'].values, cleaned_flights_hourly['count'].values)
+    plt.title("Total Flight Movements per Hour (truncated above {})".format(truncatenum))
+    ax.axhline(y=lineheight, xmin=0.0, xmax=1.0, color='r', label="{}th percentile; n={}".format(percentile, rednum))
+    ax.set_yticks(yticks)
+    ax.legend()
+    axes = plt.gca()
+    axes.set_ylim([truncatenum,63])
+
+    ax.scatter(limit_cleaned_flights_hourly['timestamp'].values, limit_cleaned_flights_hourly['count'].values,
+               color='red')
+
+# max_hourly.unstack().plot(kind="bar", stacked=True)
+# plt.title("Maximum Flight Movements per Runway by Hour")
+# ax = plt.gca()
+# ytick = np.arange(0,150,5)
+# ax.set_yticks(ytick, minor=True)
+# ax.grid('off', which='major', axis='y', linestyle='--', linewidth=0.5)
+# ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
+
+
+
+# mean_hourly.unstack().plot(kind="bar", rot=0, stacked=True)
+# plt.title("Mean Flight Movements per Runway by Hour")
+# ax = plt.gca()
+# ytick = np.arange(0,75,5)
+# ax.set_yticks(ytick, minor=True)
+# ax.grid('off', which='major', axis='y', linestyle='--', linewidth=0.5)
+# ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
+
+# part_of_total_flights('2019-10-01', "2019-11-30", 111, 30, 67)
+plt.show()
 
 
 
