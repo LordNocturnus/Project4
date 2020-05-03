@@ -173,6 +173,7 @@ def part_of_total_flights(start_date, end_date, subplotnum, truncatenum, percent
     plt.title("Total Flight Movements per Hour (truncated above {})".format(truncatenum))
     ax.axhline(y=lineheight, xmin=0.0, xmax=1.0, color='r', label="{}th percentile; n={}".format(percentile, rednum))
     ax.set_yticks(yticks)
+    ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
     ax.legend()
     axes = plt.gca()
     axes.set_ylim([truncatenum,63])
@@ -198,7 +199,7 @@ def part_of_total_flights(start_date, end_date, subplotnum, truncatenum, percent
 # ax.grid('off', which='major', axis='y', linestyle='--', linewidth=0.5)
 # ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
 
-# part_of_total_flights('2019-10-01', "2019-11-30", 111, 30, 67)
+part_of_total_flights('2019-10-01', "2019-11-30", 111, 30, 55)
 plt.show()
 
 
