@@ -7,16 +7,17 @@ def GetDates(lekker):
     y = sorted(set(dates))
     return y
 
-flights = pd.read_csv("data\\useful_flights.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
+#flights = pd.read_csv("data\\useful_flights.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
+flights = pd.read_csv("data\\weatherdata.csv").sort_values(by=['timestamp'])
 
 lst = []
 for i,flight in flights.iterrows():
     date = flight['timestamp'][0:10]
     time = flight['timestamp'][11:19]
-    entry = [date,time]
+    entry = [date,time,flight['direction']]
     lst.append(entry)
 
-newcolumns = ['date','time']
+newcolumns = ['date','time', 'direction']
 newflights = pd.DataFrame(lst,columns=newcolumns)
 
 
@@ -50,9 +51,10 @@ for i, time in daysDF.iterrows():
     day = time['day']
     for j, flight in newflights.iterrows():
         if date == flight['date']:
-            lst3.append([flight['date'], day, flight['time']])
+            lst3.append([flight['date'], day, flight['time'], flight['direction']])
 
-lastcolumns = ['date', 'day', 'timestamp']
+lastcolumns = ['date', 'day', 'timestamp', 'direction']
 panda = pd.DataFrame(lst3, columns=lastcolumns)
-panda.to_csv("data\\addeddayforexpectedconcept.csv", index=False)
-print('ddone')
+panda.to_csv("data\\AddedWindDirection.csv", index=False)
+print('done')
+

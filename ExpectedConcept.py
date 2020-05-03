@@ -1,6 +1,6 @@
 import pandas as pd
 
-flights = pd.read_csv("data\\addeddayforexpectedconcept.csv")
+flights = pd.read_csv("data\\AddedWindDirection.csv")
 
 #print(flights)
 # North concept, Mon-Fri [7-21), Sat-Sun [9-20) : 0
@@ -14,7 +14,8 @@ for i, flight in flights.iterrows():
     inthour = int(hour)
     minute = flight['timestamp'][3:5]
     intminute = int(minute)
-    wantedtimestamp = flight['date'] + ' '+ flight['timestamp']
+    wantedtimestamp = flight['date'] + ' ' + flight['timestamp']
+    direction = flight['direction']
     if inthour in range(0,6):
         lst.append([wantedtimestamp,99])
 
@@ -22,7 +23,13 @@ for i, flight in flights.iterrows():
         if intminute in range(31,60):
             lst.append([wantedtimestamp,99])
 
-    elif (day == 'sat' or day == 'sun') or (date == '2019-10-03' or date == '2019-11-01'): #these are public hollidays in Baden-Würtemmberg according to: https://publicholidays.de/baden-wurttemberg/2019-dates/
+    elif (direction in range(70,111)) and (inthour in range(6,21)): #westerly wind during daytime
+        lst.append([wantedtimestamp,1])
+
+    elif direction in range(180,271):
+        lst.append([wantedtimestamp,2])
+
+    elif ((day == 'sat' or day == 'sun') or (date == '2019-10-03' or date == '2019-11-01')) and (direction not in range(70,111) or direction not in range(180,271)): #these are public hollidays in Baden-Würtemmberg according to: https://publicholidays.de/baden-wurttemberg/2019-dates/
         if inthour in range(9,20):
             lst.append([wantedtimestamp,0])
         elif inthour in range(20,23):
@@ -36,7 +43,7 @@ for i, flight in flights.iterrows():
 
 
 
-    elif (day is not 'sat' and day is not 'sun') and (date is not '2019-10-03' or date is not '2019-11-01'):
+    elif ((day is not 'sat' and day is not 'sun') and (date is not '2019-10-03' or date is not '2019-11-01')) and (direction not in range(70,111) or direction not in range(180,271)):
         if inthour in range(7,21):
             lst.append([wantedtimestamp, 0])
         elif inthour in range(21,23):
@@ -52,7 +59,7 @@ for i, flight in flights.iterrows():
 
 expectedcolumns = ['timestamp','ExpectedConcept']
 expectedlist = pd.DataFrame(lst,columns=expectedcolumns) #This dataframe has 1 flight less then the original amount of flights
-expectedlist.to_csv("data\\expected_concept.csv",index=False)
+expectedlist.to_csv("data\\expected_concept_VFinal.csv",index=False)
 print('done')
 
 
