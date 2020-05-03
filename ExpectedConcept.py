@@ -30,7 +30,7 @@ for i, flight in flights.iterrows():
         elif inthour == 23:
             if intminute in range(0,31):
                 lst.append([wantedtimestamp,1])
-        elif inthour in range(6-9):
+        elif inthour in range(6,9):
             lst.append([wantedtimestamp,2])
 
 
