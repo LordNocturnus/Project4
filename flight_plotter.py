@@ -333,6 +333,49 @@ def specific_runway_arrival_and_departure(number_1, number_2, runwayfile):
                                     lat, lon = flight_file[:, 8], flight_file[:, 9]
                                     plot_departure_track(ax2, lon, lat,alpha_value_2)
     
+def plot_flight_file(subplot_number,file_name):
+    start_time = time.time()
+    ax = plt.subplot(subplot_number, projection=Stamen('terrain-background').crs)
+    Stamen_terrain_background_plot(ax)
+    plot_runway(ax,[10,14,16])
+    data = pd.read_csv(os.path.join(os.getcwd()+f"\\data\\{file_name}.csv"))
+    #Now we have the desired part of the dataframe
+    flight_id_list = list(data["flight_id"])
+    flights = [os.path.join(os.getcwd() + f"\\data\\arrival_flights"),
+             os.path.join(os.getcwd() + f"\\data\\departure_flights")]
+    N_of_flights = 0
+    for item in flights:
+        for folder in os.listdir(item):
+            if os.path.isdir(item + f"\\{folder}"):
+                for file in os.listdir(item + f"\\{folder}"):
+                    if file[:-4] in flight_id_list:
+                        N_of_flights+=1
+    alpha_value = transparency(N_of_flights)
+
+    for item in flights:
+        for folder in os.listdir(item):
+            if os.path.isdir(item + f"\\{folder}"):
+                for file in os.listdir(item + f"\\{folder}"):
+                    if file[:-4] in flight_id_list:
+                        index = flight_id_list.index(file[:-4])
+                        arriving = pd.array(data["arriving"])[index]
+                    
+                        flight_file = pd.read_csv(
+                            os.path.join(item + f"\\{folder}\\{file}")
+                        ).values
+                        
+                        if arriving:
+                            lat, lon = flight_file[:, 7], flight_file[:, 8]
+                            plot_arrival_track(ax, lon, lat,alpha_value)
+                        else:
+                            lat, lon = flight_file[:, 8], flight_file[:, 9]
+                            plot_departure_track(ax, lon, lat,alpha_value)
+    
+    plt.legend(handles=[matplotlib.lines.Line2D([0], [0], color='b', lw=4, label='Arriving'),
+        matplotlib.lines.Line2D([0], [0], color='r', lw=4, label='Departing')],loc="upper right")
+    
+    print(time.time()-start_time)
+
 
 #plt.figure(figsize=(16,9))
 
@@ -343,6 +386,9 @@ def specific_runway_arrival_and_departure(number_1, number_2, runwayfile):
 #part_of_flights("2019-10-01 04:01:12+00:00","2019-11-30 22:13:46+00:00",111)
 #part_of_flights("2019-11-14 10:55:15+00:00","2019-11-15 12:26:40+00:00",111)
 #part_of_flights("2019-11-09 21:30:00+00:00","2019-11-10 07:00:00+00:00",111)
+#plot_flight_file(111,'outliers')
+#plot_flight_file(111,'modified_flights')
+
 #plt.savefig("file.pdf",bbox = "tight")
 #plt.show()
 
@@ -379,3 +425,5 @@ def check_runway_entries():
         
 #8.530562783707047 47.471626608073855 0.9014288817329612 (circle of the adsb data)
 # scale factor is 1.4793879
+
+
