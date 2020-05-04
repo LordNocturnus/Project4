@@ -7,9 +7,20 @@ def GetDates(lekker):
     y = sorted(set(dates))
     return y
 
-#flights = pd.read_csv("data\\useful_flights.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
-flights = pd.read_csv("data\\weatherdata.csv").sort_values(by=['timestamp'])
+# flights = pd.read_csv("data\\useful_flights.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
+flights = pd.read_csv("data\\Arrival_Weather.csv", dtype={'icao24': bool}).sort_values(by=['Time'])
+flights['arriving'] = True
+flights = flights.append(pd.read_csv("data\\Departure_Weather.csv", dtype={'icao24': bool}))
 
+flights.loc[flights['arriving'] != True, 'arriving'] = False
+
+flights = flights.sort_values(by=['Time']).reset_index()
+
+flights['date'] = flights['Time'].str[0:10]
+
+print(flights['date'])
+
+'''
 lst = []
 for i,flight in flights.iterrows():
     date = flight['timestamp'][0:10]
@@ -18,12 +29,12 @@ for i,flight in flights.iterrows():
     lst.append(entry)
 
 newcolumns = ['date','time', 'direction']
-newflights = pd.DataFrame(lst,columns=newcolumns)
+newflights = pd.DataFrame(lst,columns=newcolumns)'''
 
 
 #1 oktober=dinsdag
 days = ['tuesday','wednesday','thursday','friday','saturday','sunday','monday']
-dates = GetDates(newflights['date'])
+dates = GetDates(flights['date'])
 lst2 = []
 for i in range(len(dates)):
     date = dates[i]
@@ -44,17 +55,26 @@ for i in range(len(dates)):
 
 dayscolumns = ['date', 'day']
 daysDF = pd.DataFrame(lst2,columns=dayscolumns)
+
+print(daysDF)
+
+flights = pd.merge(flights, daysDF, how='inner', on='date')
+
+'''
 #print(daysDF)
 lst3 = []
 for i, time in daysDF.iterrows():
     date = time['date']
     day = time['day']
-    for j, flight in newflights.iterrows():
+    for j, flight in flights.iterrows():
         if date == flight['date']:
             lst3.append([flight['date'], day, flight['time'], flight['direction']])
 
 lastcolumns = ['date', 'day', 'timestamp', 'direction']
-panda = pd.DataFrame(lst3, columns=lastcolumns)
-panda.to_csv("data\\AddedWindDirection.csv", index=False)
-print('done')
+'''
 
+flights = flights.drop(columns=['Unnamed: 0', 'date', 'Temperature', 'Weather', 'WindSpeed', 'Humidity', 'Pressure', 'Visibility'])
+
+flights.columns = ['index', 'flight_id', 'direction', 'timestamp', 'arriving', 'day']
+flights.to_csv("data\\AddedWindDirection.csv", index=False)
+print('done')

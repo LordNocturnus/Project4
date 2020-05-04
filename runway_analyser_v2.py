@@ -163,9 +163,9 @@ print('split and sorted runways')
 if "runway_usage" not in os.listdir(os.getcwd() + "\\data"):
     os.mkdir(f"data\\runway_usage")
 
-runway10_28.to_csv('data\\runway_usage\\runway10_28_new.csv', index=False)
-runway14_32.to_csv('data\\runway_usage\\runway14_32_new.csv', index=False)
-runway16_34.to_csv('data\\runway_usage\\runway16_34_new.csv', index=False)
+runway10_28.to_csv('data\\runway_usage\\runway10_28.csv', index=False)
+runway14_32.to_csv('data\\runway_usage\\runway14_32.csv', index=False)
+runway16_34.to_csv('data\\runway_usage\\runway16_34.csv', index=False)
 outliers.to_csv('data\\runway_usage\\outliers.csv', index=False)
 
 print('all written down!')

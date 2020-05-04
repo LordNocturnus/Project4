@@ -12,9 +12,7 @@ print('import ok')
 
 arriving_flights = runway_usage.loc[runway_usage['arriving']==True]
 
-print(arriving_flights)
-
-arriving_flights['next_concept'] = arriving_flights.loc['concept'].shift(+1)
+arriving_flights['next_concept'] = arriving_flights['concept'].shift(+1)
 
 runway_usage = arriving_flights.append(runway_usage.loc[runway_usage['arriving']==False]).sort_values(by=["timestamp"])
 

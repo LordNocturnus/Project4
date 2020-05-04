@@ -18,7 +18,7 @@ for j, flight in depflights.iterrows():
     winddirection = flight['WindDirection']
     lst.append([date, winddirection])
 
-columns = ['timestamp', 'direction']
+columns = ['timestamp', 'direction', 'flight_id']
 x = pd.DataFrame(lst, columns=columns).sort_values(by=['timestamp'])
 
 x.to_csv("data\\weatherdata.csv")
