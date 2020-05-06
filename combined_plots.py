@@ -5,11 +5,12 @@ import matplotlib.pyplot as plt
 
 plt.figure(figsize=(16,9))
 
-start,end = "2019-11-14 10:55:15+00:00","2019-11-15 12:26:40+00:00"
+#start,end = "2019-11-14 10:55:15+00:00","2019-11-15 12:26:40+00:00"
+start,end = "2019-10-01 04:01:12+00:00","2019-11-30 22:13:46+00:00"
 truncate_val = 30
 percentile_val = 67
 
-part_of_flights(start,end,231)
+#part_of_flights(start,end,231)
 part_of_aircraft_parking(start,end,232)
 part_of_total_flights(start, end, 233, truncate_val, percentile_val)
 
