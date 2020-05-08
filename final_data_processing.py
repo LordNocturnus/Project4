@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime
 from textwrap import wrap
-import matplotlib
+import matplotlib as mpl
 import scipy as sc
 import numpy as np
 import matplotlib.pyplot as plt
@@ -79,5 +79,25 @@ def data_processor(start_date, end_date, percentile):
 
     # print(go_arounds)
 
+    sorted_flights_hourly = sorted_flights_hourly.merge(concept_devs, how='outer', on='timestamp')
+    go_arounds = go_arounds.merge(sorted_flights_hourly, how='outer', on='timestamp')
+    final = go_arounds.set_index('timestamp').fillna(0).astype(int)
 
-data_processor("2019-10-01","2019-11-30",10)
+    final.columns = ['go_ar', 'fl_mov', 'con_dev',]
+    final['fl_mov_norm'] = final['fl_mov'] / cutoff
+    final['total'] = final['fl_mov_norm']+final['con_dev']+final['go_ar']
+    final = final.drop('fl_mov', 1).reset_index()
+    # final = final[final['total'] > 0]
+
+    print(final)
+    final.plot.scatter(x='timestamp', y='total', c='total', s=25, cmap=mpl.cm.plasma)
+    plt.title("Total Hourly Capacity Markers, {}th percentile".format(percentile))
+
+    ax = plt.gca()
+    ytick = np.arange(0,10,1)
+    ax.set_yticks(ytick, minor=True)
+    ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
+    ax.grid('on', which='major', axis='y', linestyle='--', linewidth=0.5)
+    plt.show()
+
+data_processor("2019-10-01","2019-11-30",50)
