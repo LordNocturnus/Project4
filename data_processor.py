@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 
-flight_num = 1000
+flight_num = 10000000
 if 'arrival_modified' not in os.listdir(os.getcwd() + '\\data'):
     os.mkdir(os.getcwd() + f"\\data\\arrival_modified")
 
@@ -11,6 +11,7 @@ arrival_list = os.listdir(os.getcwd() + '\\data\\arrival_flights')
 
 data_arrival = []
 loitering = []
+loitering_2 = []
 removed = []
 
 for f in range(0, len(arrival_list)):
@@ -42,6 +43,8 @@ for f in range(0, len(arrival_list)):
         temp = deepcopy(data)
         temp = temp.shift()
         data["vel_change"] = temp["groundspeed"] - data["groundspeed"]
+        data["cumulativ_track"] = data["heading_change"].cumsum()
+        data["cumulativ_geo_track"] = data["geo_track_change"].cumsum()
         data["usefull"] = np.full(len(data), True)
         data["usefull"][0:2] = False
         temp = [data.std(axis=0, skipna=True, numeric_only=True), data.mean(axis=0, skipna=True, numeric_only=True)]
@@ -51,8 +54,11 @@ for f in range(0, len(arrival_list)):
         if f < flight_num:
             data.to_csv(f'data\\arrival_modified\\{arrival_list[f]}\\{file}', index=False)
         data_arrival.append(data)
-        if abs(sum(data['geo_track_change'][2:])) >= 360:
+        if abs(sum(data['heading_change'][2:])) >= 360:
             loitering.append(file[:-4])
+        if abs(data["cumulativ_track"].max(skipna=True) - data["cumulativ_track"].min(skipna=True)) >= 360:
+            print("loitering")
+            loitering_2.append(file[:-4])
         removed.append((len(data) - len(data[data['usefull']])) / len(data))
         print(
             f"data\\arrival_flights\\{arrival_list[f]}\\{file}: {(len(data) - len(data[data['usefull']])) / len(data)}")
@@ -120,6 +126,11 @@ data_limit_arrival.to_csv(f'data\\arrival_modified\\limits.csv', index=False)
 
 f = open("data\\turnaround.list", "w")
 for l in loitering:
+    f.write(l + "\n")
+f.close()
+
+f = open("data\\turnaround_2.list", "w")
+for l in loitering_2:
     f.write(l + "\n")
 f.close()
 

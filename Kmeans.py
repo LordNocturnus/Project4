@@ -2,7 +2,8 @@
 import os
 import pandas as pd
 import numpy as np
-from sklearn.cluster import KMeans
+from copy import deepcopy
+from sklearn.cluster import KMeans, DBSCAN
 from matplotlib.colors import hsv_to_rgb
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -30,15 +31,14 @@ def color_range(n, colorshift):
     return ret
 
 
-def kmeans(data, N, ignore_parameters=None, dont_scale_parameters=None, return_centroids=False, return_colors_rgb=False,
+def kmeans(data, N, parameters, dont_scale_parameters=None, return_centroids=False, return_colors_rgb=False,
            colorshift=45, plot=False):
     # select desired parameters
     C = "empty"
-
-    if ignore_parameters is not None:
-        df = data.drop(ignore_parameters, axis=1)
-    else:
-        df = data
+    df = deepcopy(data)
+    for c in data.columns:
+        if c not in parameters:
+            df = df.drop(c, axis=1)
     if dont_scale_parameters is not None:
         scaled_data = df.drop(dont_scale_parameters, axis=1)
     else:
@@ -47,14 +47,18 @@ def kmeans(data, N, ignore_parameters=None, dont_scale_parameters=None, return_c
     # scale and execute kmeans
     scaled_data = scaling(scaled_data, limits, width=1)
     df[scaled_data.columns] = scaled_data
-    km = KMeans(n_clusters=N)
+    """km = KMeans(n_clusters=N)
     groups = km.fit_predict(df)
+    data["cluster"] = groups"""
+
+    DB = DBSCAN(eps=0.125)
+    groups = DB.fit_predict(df)
     data["cluster"] = groups
 
-    # execute color function ["timestamp","callsign","icao24","lastseen","flight_id","origin"]
+    # execute color function
     if return_colors_rgb:
         C = np.char.array("empty")
-        colors = color_range(N, colorshift)
+        colors = color_range(len(set(data.cluster)), colorshift)
         for i in range(0, np.size(data.cluster)):
             if C[0] == "empty":
                 C = np.char.array(str(colors[data.cluster[i]]))
@@ -63,20 +67,22 @@ def kmeans(data, N, ignore_parameters=None, dont_scale_parameters=None, return_c
         data["color_range"] = C
 
     if plot:
-        #fig = plt.figure(1)
-        #ax = Axes3D(fig)
-        if C == "empty":
-            colors = color_range(N, colorshift)
+        # fig = plt.figure(1)
+        # ax = Axes3D(fig)
+        colors = color_range(len(set(data.cluster)), colorshift)
+        C = colors[data.cluster]
+        '''if C == "empty":
+            
             for i in range(0, np.size(data.cluster)):
                 if C == "empty":
                     C = np.array(list(colors[data.cluster[i]]))
                 else:
-                    C = np.vstack((C, list(colors[data.cluster[i]])))
+                    C = np.vstack((C, list(colors[data.cluster[i]])))'''
 
-        #ax.scatter([data.latitude], [data.longitude], [data.altitude], c=C)
-        #ax.set_xlabel("latitude")
-        #ax.set_ylabel("longitude")
-        #ax.set_zlabel("altitude")
+        # ax.scatter([data.latitude], [data.longitude], [data.altitude], c=C)
+        # ax.set_xlabel("latitude")
+        # ax.set_ylabel("longitude")
+        # ax.set_zlabel("altitude")
         fig, axs = plt.subplots(len(df.columns), len(df.columns))
         for c1 in range(0, len(df.columns)):
             for c2 in range(0, len(df.columns)):
@@ -87,15 +93,17 @@ def kmeans(data, N, ignore_parameters=None, dont_scale_parameters=None, return_c
         for ax in axs.flat:
             ax.label_outer()
         plt.figure(2)
-        C = "empty"
+        C = colors[data[data["flight_id"] == data["flight_id"][0]].cluster]
+        '''C = "empty"
         if C == "empty":
             colors = color_range(N, colorshift)
             for i in range(0, np.size(data[data["flight_id"] == data["flight_id"][0]].cluster)):
                 if C == "empty":
                     C = np.array(list(colors[data[data["flight_id"] == data["flight_id"][0]].cluster[i]]))
                 else:
-                    C = np.vstack((C, list(colors[data[data["flight_id"] == data["flight_id"][0]].cluster[i]])))
-        plt.scatter(data[data["flight_id"] == data["flight_id"][0]].latitude, data[data["flight_id"] == data["flight_id"][0]].longitude, c=C)
+                    C = np.vstack((C, list(colors[data[data["flight_id"] == data["flight_id"][0]].cluster[i]])))'''
+        plt.scatter(data[data["flight_id"] == data["flight_id"][0]].latitude,
+                    data[data["flight_id"] == data["flight_id"][0]].longitude, c=C)
         plt.show()
 
     # return values
@@ -120,29 +128,24 @@ if __name__ == "__main__":
                                                                                            'callsign': str,
                                                                                            'flight_id': str})
                 temp = temp.drop(index=range(0, 2))
-                data.append(temp)
+                data.append(temp[temp["usefull"]])
     data = pd.concat(data)
     data.index = range(0, len(data.index))
-    data, df = kmeans(data, 10,
-                      ignore_parameters=["timestamp",
-                                         "altitude",
-                                         "callsign",
-                                         "geoaltitude",
-                                         "groundspeed",
-                                         "icao24",
-                                         "lastseen",
-                                         "origin",
-                                         "track",
-                                         "vertical_rate",
-                                         "distance",
-                                         "flight_id",
-                                         "runway",
-                                         "geo_track",
-                                         "latitude",
-                                         "longitude",
-                                         #"geo_change",
-                                         #"geo_track_change",
-                                         #"vel_change",
-                                         ],
+    data, df = kmeans(data, 3, [#"timestamp",
+                                                  #"altitude",
+                                                  #"geoaltitude",
+                                                  #"groundspeed",
+                                                  #"lastseen",
+                                                  #"track",
+                                                  #"vertical_rate",
+                                                  #"distance",
+                                                  #"runway",
+                                                  #"geo_track",
+                                                  "latitude",
+                                                  "longitude",
+                                                  "geo_change",
+                                                  "geo_track_change",
+                                                  "vel_change",
+                                                  ],
                       return_centroids=False, colorshift=90, plot=True)
     # raise NotImplementedError
