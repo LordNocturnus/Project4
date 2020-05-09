@@ -5,6 +5,7 @@ import matplotlib as mpl
 import scipy as sc
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 
 def data_processor(start_date, end_date, percentile):
@@ -16,7 +17,6 @@ def data_processor(start_date, end_date, percentile):
     df["timestamp"] = pd.to_datetime(df["timestamp"])
     concept_devs = pd.read_csv("data/concept_analysis/concept_failures.csv")
     go_arounds = pd.read_csv("data/Go_arounds.csv")
-
 
 
     # getting rid of old runway data, cleaning up names and stuff
@@ -55,7 +55,7 @@ def data_processor(start_date, end_date, percentile):
     sorted_flights_hourly = flights_hourly[flights_hourly['count'] > cutoff].drop('hour', 1)
     sorted_flights_hourly.columns = ['timestamp', 'fl_mov']
 
-    print(sorted_flights_hourly)
+    # print(sorted_flights_hourly)
 
     # sort concept deviations
     concept_devs['timestamp'] = pd.to_datetime(concept_devs['timestamp'])
@@ -89,15 +89,37 @@ def data_processor(start_date, end_date, percentile):
     final = final.drop('fl_mov', 1).reset_index()
     # final = final[final['total'] > 0]
 
-    print(final)
-    final.plot.scatter(x='timestamp', y='total', c='total', s=25, cmap=mpl.cm.plasma)
-    plt.title("Total Hourly Capacity Markers, {}th percentile".format(percentile))
 
-    ax = plt.gca()
-    ytick = np.arange(0,10,1)
-    ax.set_yticks(ytick, minor=True)
-    ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
-    ax.grid('on', which='major', axis='y', linestyle='--', linewidth=0.5)
-    plt.show()
+    # loitering sorting
 
-data_processor("2019-10-01","2019-11-30",50)
+    loitering = pd.DataFrame()
+
+    for file in os.listdir(os.getcwd() + f"\\data\\arrival_postprocessed"):
+        if file[-4:] == ".csv":
+            loit_ = pd.read_csv(
+                f"data\\arrival_postprocessed\\{file}"
+            )
+        loit_ = loit_[loit_['usefull'] == True]
+        loit_ = loit_[loit_['loitering'] == 1]
+        loit_['timestamp'] = pd.to_datetime(loit_['timestamp'])
+        # if loit_['flight_id'].nunique() == 1:
+        #     name = loit_['flight_id'].unique()
+        #     loitering[name] = name
+        loit_ = loit_.set_index('timestamp').groupby([pd.Grouper(freq='H')]).size().reset_index()
+        if len(loit_.index) >1:
+            print(loit_)
+
+
+
+    # print(final)
+    # final.plot.scatter(x='timestamp', y='total', c='total', s=25, cmap=mpl.cm.plasma)
+    # plt.title("Total Hourly Capacity Markers, {}th percentile".format(percentile))
+    #
+    # ax = plt.gca()
+    # ytick = np.arange(0,10,1)
+    # ax.set_yticks(ytick, minor=True)
+    # ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
+    # ax.grid('on', which='major', axis='y', linestyle='--', linewidth=0.5)
+    # plt.show()
+
+data_processor("2019-10-01","2019-11-30",99)
