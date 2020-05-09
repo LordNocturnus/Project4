@@ -114,19 +114,19 @@ sum_concepts = flights_hourly.groupby('concept')['count'].sum()
 #________________________________________________________________________________________________________________________
 #plotting stuff
 
-# plt.figure(1, figsize=(35,8))
-# plt.title("Total Flight Movements per Hour")
-#
-# for cp in flights_hourly.concept.unique():
-#     conc_ = flights_hourly[flights_hourly['concept']==cp][['timestamp', 'count']]
-#     conc_ = conc_[conc_['count']> 20]
-#     print(conc_)
-#
-#     plt.scatter(conc_['timestamp'].values, conc_['count'].values, label=cp)
-# plt.axhline(y=50, xmin=0.0, xmax=1.0, color='r')
-# plt.legend()
-# axes = plt.gca()
-# axes.set_ylim([20,65])
+plt.figure(1, figsize=(35,8))
+plt.title("Total Flight Movements per Hour")
+
+for cp in flights_hourly.concept.unique():
+    conc_ = flights_hourly[flights_hourly['concept']==cp][['timestamp', 'count']]
+    conc_ = conc_[conc_['count']> 20]
+    print(conc_)
+
+    plt.scatter(conc_['timestamp'].values, conc_['count'].values, label=cp)
+plt.axhline(y=50, xmin=0.0, xmax=1.0, color='r')
+plt.legend()
+axes = plt.gca()
+axes.set_ylim([20,65])
 
 
 

@@ -6,7 +6,7 @@ import scipy as sc
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-
+import statistics
 
 def data_processor(start_date, end_date, percentile):
 
@@ -41,10 +41,47 @@ def data_processor(start_date, end_date, percentile):
     concept_hourly = concept_hourly.fillna(0).astype(int)
 
 
+    mean_concepts = concept_hourly.groupby('current_concept')[['arrivals', 'departures']].mean()
+
+    ax = mean_concepts.plot(kind="bar", rot=0, stacked=True, color=['b', 'r'])
+
+    plt.title("Mean Hourly Flight Movements per Concept")
+    ytick = np.arange(0,40,1)
+    ax.set_yticks(ytick, minor=True)
+    ax.grid('off', which='major', axis='y', linestyle='--', linewidth=0.5)
+    ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
+
+
+
+    plt.figure(3, figsize=(35, 8))
+    plt.title("Total Daily Flight Movements per Concept")
+
+    flights_hourly = df.set_index("timestamp").groupby([pd.Grouper(freq='D'), 'current_concept']).size().reset_index()
+    flights_hourly.columns = ['timestamp', 'current_concept', 'count']
+
+    print(flights_hourly)
+
+    for cp in flights_hourly.current_concept.unique():
+        conc_ = flights_hourly[flights_hourly.current_concept == cp][['timestamp', 'count']]
+        # conc_ = conc_[conc_['count'] > 20]
+        print(conc_)
+
+        plt.plot(conc_['timestamp'].values, conc_['count'].values, label=cp)
+    # plt.axhline(y=50, xmin=0.0, xmax=1.0, color='r')
+    plt.legend()
+    ax = plt.gca()
+    ytick = np.arange(0, 700, 10)
+    ax.set_yticks(ytick, minor=True)
+    ax.grid('off', which='major', axis='y', linestyle='--', linewidth=0.5)
+    ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
+    # axes.set_ylim([20, 100])
+
+
+
+
     # grouping by hour
 
-    flights_hourly = df.set_index("timestamp").groupby([pd.Grouper(freq='H')]).size()
-    flights_hourly = flights_hourly.reset_index()
+    flights_hourly = df.set_index("timestamp").groupby([pd.Grouper(freq='H')]).size().reset_index()
     flights_hourly.columns = ['timestamp', 'count']
     flights_hourly['hour'] = flights_hourly['timestamp'].dt.hour
 
@@ -114,50 +151,55 @@ def data_processor(start_date, end_date, percentile):
 
     #final dataframe
 
+    def mpl_active_bounds(ax):
+        def on_xlims_change(event_ax):
+            limits = "new x-axis limits: " + '"' + mpl.dates.num2date(event_ax.get_xlim()[0]).strftime(
+                "%Y-%m-%d %H:%M:%S+00:00") + '","' + mpl.dates.num2date(event_ax.get_xlim()[1]).strftime(
+                "%Y-%m-%d %H:%M:%S+00:00") + '"'
+            print(limits)
+
+        ax.callbacks.connect("xlim_changed", on_xlims_change)
+
     loitering['timestamp'] = pd.to_datetime(loitering['timestamp'])
 
-    sorted_flights_hourly = sorted_flights_hourly.merge(concept_devs, how='outer', on='timestamp')
-    go_arounds = go_arounds.merge(sorted_flights_hourly, how='outer', on='timestamp')
+    go_arounds = go_arounds.merge(concept_devs, how='outer', on='timestamp')
     loitering = loitering.merge(go_arounds, how='outer', on='timestamp')
+    loitering = loitering.set_index('timestamp').fillna(0)
+    loitering.columns = ['loit', 'go_ar', 'con_dev']
+    loitering = loitering.reset_index().groupby('timestamp').sum()
 
-    final = loitering
-    final = final.loc[final['timestamp'].between(start_date, end_date, inclusive=True)]
-    final = final.set_index('timestamp').fillna(0)
+    sorted_flights_hourly = sorted_flights_hourly.merge(loitering, how='outer', on='timestamp')
 
-    final.columns = ['loit', 'go_ar', 'fl_mov', 'con_dev',]
+
+    final = sorted_flights_hourly
+    final = final.loc[final['timestamp'].between(start_date, end_date, inclusive=True)].set_index('timestamp').fillna(0)
     final['fl_mov_norm'] = final['fl_mov'] / cutoff
-    final['total'] = final['loit']+final['fl_mov_norm']+final['con_dev']+final['go_ar']
+    final['loit'] = final['loit'] / statistics.mean(final['loit'])
+    final['con_dev'] = final['con_dev'] / statistics.mean(final['con_dev'])
+    final['total'] = final['loit'] + final['fl_mov_norm'] + final['con_dev'] + final['go_ar']
     final = final.drop('fl_mov', 1).reset_index()
-    final = final[final['total'] > 0]
-    # final = final.groupby('timestamp').sum()
-    # final_ = final[['timestamp', 'total']]
-    # final_ = final_.groupby('timestamp').sum()
 
 
-    print(final)
-    # def mpl_active_bounds(ax):
-    #     def on_xlims_change(event_ax):
-    #         limits = "new x-axis limits: " + '"' + mpl.dates.num2date(event_ax.get_xlim()[0]).strftime(
-    #             "%Y-%m-%d %H:%M:%S+00:00") + '","' + mpl.dates.num2date(event_ax.get_xlim()[1]).strftime(
-    #             "%Y-%m-%d %H:%M:%S+00:00") + '"'
-    #         print(limits)
-    #
-    #     ax.callbacks.connect("xlim_changed", on_xlims_change)
-    #
-    # final.plot.scatter(x='timestamp', y='total', c='total', s=25, cmap=mpl.cm.plasma)
-    # plt.title("Total Hourly Capacity Markers, {}th percentile".format(percentile))
-    #
-    # ax = plt.gca()
-    # ytick = np.arange(0,10,1)
-    # ax.set_yticks(ytick, minor=True)
-    # ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
-    # ax.grid('on', which='major', axis='y', linestyle='--', linewidth=0.5)
-    #
-    # xfmt = mpl.dates.DateFormatter("%Y-%m-%d %H:%M:%S")
-    # ax.xaxis.set_major_formatter(xfmt)
-    # plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
-    # mpl_active_bounds(ax)
-    #
-    # plt.show()
+    final.plot.scatter(x='timestamp', y='total', c='total', s=25, cmap=mpl.cm.plasma)
+    plt.title("Total Hourly Capacity Markers, {}th percentile".format(percentile))
 
-data_processor("2019-10-01","2019-10-02",99)
+
+    ax = plt.gca()
+    ytick = np.arange(0,60,1)
+    ytick2 = np.arange(0,60,5)
+    ax.set_yticks(ytick2, minor=False)
+    ax.set_yticks(ytick, minor=True)
+    ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
+    ax.grid('on', which='major', axis='y', linestyle='--', linewidth=0.5)
+
+
+    xfmt = mpl.dates.DateFormatter("%Y-%m-%d %H:%M:%S")
+    ax.xaxis.set_major_formatter(xfmt)
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    mpl_active_bounds(ax)
+
+
+    plt.show()
+
+
+data_processor("2019-10-01","2019-11-30",99)
