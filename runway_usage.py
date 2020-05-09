@@ -10,9 +10,9 @@ from IPython.core.display import display
 
 
 # data paths:
-path_runway10_28 = "data/runway10_28.csv"
-path_runway14_32 = "data/runway14_32.csv"
-path_runway16_34 = "data/runway16_34.csv"
+path_runway10_28 = "data/runwaystuff/runway10_28.csv"
+path_runway14_32 = "data/runwaystuff/runway14_32.csv"
+path_runway16_34 = "data/runwaystuff/runway16_34.csv"
 
 
 # import runway data
@@ -31,51 +31,21 @@ df["timestamp"] = pd.to_datetime(df["timestamp"])
 
 
 
-def concept_sorter(row):
-    weekday = row['dayname']
-    hour = row['hour']
-
-    if weekday in ['Saturday', 'Sunday']:
-        if hour in [6, 7, 8]:
-            concept = 'South'
-        elif hour in [20, 21, 22, 23]:
-            concept = 'East'
-        elif hour in range(9, 20):
-            concept = 'North'
-        elif hour in [4,5]:
-            concept = 'East'
-        elif hour == 1:
-            concept = 'East'
-        else:
-            concept = None
-    else:
-        if hour == 6:
-            concept = 'South'
-        elif hour in [21, 22, 23]:
-            concept = 'East'
-        elif hour in range(7, 21):
-            concept = 'North'
-        elif hour in [4,5]:
-            concept = 'East'
-        elif hour == 1:
-            concept = 'East'
-        else:
-            concept = None
-
-    return concept
-
-
-
-
 # resampling by hour, grouping by runway/movement type
 arrivals_hourly = df[df['arriving'] == True].set_index("timestamp").groupby([pd.Grouper(freq='H'), 'runway']).size()
 departures_hourly = df[df['arriving'] == False].set_index("timestamp").groupby([pd.Grouper(freq='H'), 'runway']).size()
 runway_hourly = arrivals_hourly.to_frame().merge(departures_hourly.to_frame(), how='outer', left_index=True, right_index=True)
 runway_hourly.columns = ['arrivals', 'departures']
 runway_hourly = runway_hourly.fillna(0).astype(int)
-
+print(runway_hourly)
 max_hourly = runway_hourly.groupby([runway_hourly.index.get_level_values('timestamp').hour, 'runway' ]).max()
+
+
 mean_hourly = runway_hourly.groupby([runway_hourly.index.get_level_values('timestamp').hour, 'runway' ]).mean()
+
+
+
+
 
 
 
