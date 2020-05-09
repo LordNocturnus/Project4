@@ -17,6 +17,8 @@ def data_processor(start_date, end_date, percentile):
     df["timestamp"] = pd.to_datetime(df["timestamp"])
     concept_devs = pd.read_csv("data/concept_analysis/concept_failures.csv")
     go_arounds = pd.read_csv("data/Go_arounds.csv")
+    loitering = pd.read_csv("data/loitering.csv")
+
 
 
     # getting rid of old runway data, cleaning up names and stuff
@@ -77,41 +79,71 @@ def data_processor(start_date, end_date, percentile):
     go_arounds.columns = ['timestamp', 'flight_id', 'go_ar']
     go_arounds = go_arounds.groupby('timestamp').size().reset_index()
 
-    # print(go_arounds)
-
-    sorted_flights_hourly = sorted_flights_hourly.merge(concept_devs, how='outer', on='timestamp')
-    go_arounds = go_arounds.merge(sorted_flights_hourly, how='outer', on='timestamp')
-    final = go_arounds.set_index('timestamp').fillna(0).astype(int)
-
-    final.columns = ['go_ar', 'fl_mov', 'con_dev',]
-    final['fl_mov_norm'] = final['fl_mov'] / cutoff
-    final['total'] = final['fl_mov_norm']+final['con_dev']+final['go_ar']
-    final = final.drop('fl_mov', 1).reset_index()
-    # final = final[final['total'] > 0]
-
 
     # loitering sorting
 
-    loitering = pd.DataFrame()
+    # loitering = pd.DataFrame()
+    #
+    # for file in os.listdir(os.getcwd() + f"\\data\\arrival_postprocessed"):
+    #     if file[-4:] == ".csv":
+    #         loit_ = pd.read_csv(
+    #             f"data\\arrival_postprocessed\\{file}"
+    #         )
+    #
+    #     loit_ = loit_[loit_['usefull'] == True]
+    #     loit_ = loit_[loit_['loitering'] == 1]
+    #
+    #     loit_['timestamp'] = pd.to_datetime(loit_['timestamp'])
+    #     loit_ = loit_.set_index('timestamp').groupby([pd.Grouper(freq='H')]).size().reset_index()
+    #     loit_.columns = ['timestamp', 'count']
+    #
+    #     if len(loit_.index) == 1:
+    #         total_timestamps = loit_['count'].sum()
+    #         loit_['count'] = loit_['count'] / total_timestamps
+    #
+    #     elif len(loit_.index) == 2:
+    #         total_timestamps = loit_['count'].sum()
+    #         loit_['count'] = loit_['count'] / total_timestamps
+    #         loit_ = loit_[loit_['count'] > 0.2]
+    #
+    #     loitering = pd.concat([loitering, loit_], ignore_index=True)
+    #
+    # loitering.to_csv('loitering.csv', index=False)
 
-    for file in os.listdir(os.getcwd() + f"\\data\\arrival_postprocessed"):
-        if file[-4:] == ".csv":
-            loit_ = pd.read_csv(
-                f"data\\arrival_postprocessed\\{file}"
-            )
-        loit_ = loit_[loit_['usefull'] == True]
-        loit_ = loit_[loit_['loitering'] == 1]
-        loit_['timestamp'] = pd.to_datetime(loit_['timestamp'])
-        # if loit_['flight_id'].nunique() == 1:
-        #     name = loit_['flight_id'].unique()
-        #     loitering[name] = name
-        loit_ = loit_.set_index('timestamp').groupby([pd.Grouper(freq='H')]).size().reset_index()
-        if len(loit_.index) >1:
-            print(loit_)
 
 
+    #final dataframe
 
-    # print(final)
+    loitering['timestamp'] = pd.to_datetime(loitering['timestamp'])
+
+    sorted_flights_hourly = sorted_flights_hourly.merge(concept_devs, how='outer', on='timestamp')
+    go_arounds = go_arounds.merge(sorted_flights_hourly, how='outer', on='timestamp')
+    loitering = loitering.merge(go_arounds, how='outer', on='timestamp')
+
+    final = loitering
+    final = final.loc[final['timestamp'].between(start_date, end_date, inclusive=True)]
+    final = final.set_index('timestamp').fillna(0)
+
+    final.columns = ['loit', 'go_ar', 'fl_mov', 'con_dev',]
+    final['fl_mov_norm'] = final['fl_mov'] / cutoff
+    final['total'] = final['loit']+final['fl_mov_norm']+final['con_dev']+final['go_ar']
+    final = final.drop('fl_mov', 1).reset_index()
+    final = final[final['total'] > 0]
+    # final = final.groupby('timestamp').sum()
+    # final_ = final[['timestamp', 'total']]
+    # final_ = final_.groupby('timestamp').sum()
+
+
+    print(final)
+    # def mpl_active_bounds(ax):
+    #     def on_xlims_change(event_ax):
+    #         limits = "new x-axis limits: " + '"' + mpl.dates.num2date(event_ax.get_xlim()[0]).strftime(
+    #             "%Y-%m-%d %H:%M:%S+00:00") + '","' + mpl.dates.num2date(event_ax.get_xlim()[1]).strftime(
+    #             "%Y-%m-%d %H:%M:%S+00:00") + '"'
+    #         print(limits)
+    #
+    #     ax.callbacks.connect("xlim_changed", on_xlims_change)
+    #
     # final.plot.scatter(x='timestamp', y='total', c='total', s=25, cmap=mpl.cm.plasma)
     # plt.title("Total Hourly Capacity Markers, {}th percentile".format(percentile))
     #
@@ -120,6 +152,12 @@ def data_processor(start_date, end_date, percentile):
     # ax.set_yticks(ytick, minor=True)
     # ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
     # ax.grid('on', which='major', axis='y', linestyle='--', linewidth=0.5)
+    #
+    # xfmt = mpl.dates.DateFormatter("%Y-%m-%d %H:%M:%S")
+    # ax.xaxis.set_major_formatter(xfmt)
+    # plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    # mpl_active_bounds(ax)
+    #
     # plt.show()
 
-data_processor("2019-10-01","2019-11-30",99)
+data_processor("2019-10-01","2019-10-02",99)
