@@ -150,7 +150,7 @@ def part_of_flights(start,end,subplot_number):
     
 def all_arrival_flights():
     start_time = time.time()
-    N_flights = 19480
+    #N_flights = 19480
     ax = plt.subplot(111, projection=Stamen('terrain-background').crs)
     Stamen_terrain_background_plot(ax)
     for folder in os.listdir(os.getcwd() + f"\\data\\arrival_flights"):
@@ -167,6 +167,8 @@ def all_arrival_flights():
 
 
 def all_departure_flights():
+    ax = plt.subplot(subplot_number, projection=Stamen('terrain-background').crs)
+    Stamen_terrain_background_plot(ax)
     for folder in os.listdir(os.getcwd() + f"\\data\\departure_flights"):
         if os.path.isdir(os.getcwd() + f"\\data\\departure_flights\\{folder}"):
             for file in os.listdir(
@@ -376,8 +378,36 @@ def plot_flight_file(subplot_number,file_name):
     
     print(time.time()-start_time)
 
+def plot_loitering(subplot_number):
+    start_time = time.time()
+    ax = plt.subplot(subplot_number, projection=Stamen('terrain-background').crs)
+    Stamen_terrain_background_plot(ax)
+    plot_runway(ax,[10,14,16])
+    icao_data = pd.read_csv(os.path.join(os.getcwd()+"\\data\\icao24.csv"))
+    flight_id_list = list(icao_data["flight_id"])       
+    alpha_value = 0.07
+    for file in os.listdir(os.getcwd() + f"\\data\\loitering_flights"):
+        if file[-4:] == ".csv":
+            flight_file = pd.read_csv(
+                f"data\\loitering_flights\\{file}"
+            ).values
+            index = flight_id_list.index(file[:-4])
+            arriving = pd.array(icao_data["arriving"])[index]
+            if arriving:
+                lat, lon = flight_file[:, 7], flight_file[:, 8]
+                plot_arrival_track(ax, lon, lat,alpha_value)
+            else:
+                print(True)
+                lat, lon = flight_file[:, 8], flight_file[:, 9]
+                plot_departure_track(ax, lon, lat,alpha_value)
+    plt.legend(handles=[matplotlib.lines.Line2D([0], [0], color='b', lw=4, label='Arriving'),],loc="upper right", prop={"size":16})
+    #title = ax.set_title("\n".join(wrap(f'All loitering flights near ZRH', 50)))
+    #title.set_y(1.05)    
+    print(time.time()-start_time)
 
-#plt.figure(figsize=(16,9))
+
+
+plt.figure(figsize=(9,9))
 
 #all_arrival_flights()
 #first_N_arrival_flights()
@@ -388,9 +418,11 @@ def plot_flight_file(subplot_number,file_name):
 #part_of_flights("2019-11-09 21:30:00+00:00","2019-11-10 07:00:00+00:00",111)
 #plot_flight_file(111,'outliers')
 #plot_flight_file(111,'modified_flights')
+plot_loitering(111)
 
-#plt.savefig("file.pdf",bbox = "tight")
-#plt.show()
+plt.savefig("loitering.pdf",bbox_inches = "tight")
+plt.savefig("loitering.png", bbox = "tight", dpi=400)
+plt.show()
 
 #Helper functions
 

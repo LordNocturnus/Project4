@@ -31,14 +31,14 @@ def plot_aircraft_parking(dataframe, subplot_number,start,end):
     minimum_points = minimum_data(dataframe,start,end)
     maximum_points = maximum_data(dataframe,start,end)
     mean_points = mean_data(dataframe,start,end)
-    min_max_points = min_max_data(dataframe,start,end)
+    #min_max_points = min_max_data(dataframe,start,end)
     x_min,ymin = interpolate_data(minimum_points)
     x_max,y_max = interpolate_data(maximum_points)
     x_mean,y_mean = interpolate_data(mean_points)
     ax = plt.subplot(subplot_number)
-    ax.plot(x_min,ymin,color="r", alpha = 0.5)
-    ax.plot(x_max,y_max,color="b", alpha = 0.5)
-    ax.plot(min_max_points["timestamp"],min_max_points["amount"],color = 'b')
+    ax.plot(x_min,ymin,color="r", alpha = 0.5 ,linestyle='--')
+    ax.plot(x_max,y_max,color="b", alpha = 0.5,linestyle='--')
+    #ax.plot(min_max_points["timestamp"],min_max_points["amount"],color = 'b')
     #b, a = signal.butter(1, 1/2000)
     #y = signal.filtfilt(b, a, dataframe["amount"]) lowpass signal filter
     ax.plot(dates, dataframe["amount"], color="black", linewidth=1)
@@ -46,14 +46,28 @@ def plot_aircraft_parking(dataframe, subplot_number,start,end):
     ax.scatter(minimum_points["timestamp"],minimum_points["amount"], color="r")
     ax.scatter(maximum_points["timestamp"],maximum_points["amount"], color="b")
     ax.plot(x_mean,y_mean,color="r",linewidth=2)
-    xfmt = matplotlib.dates.DateFormatter("%Y-%m-%d %H:%M:%S")
+    xfmt = matplotlib.dates.DateFormatter("%Y-%m-%d")
     ax.xaxis.set_major_formatter(xfmt)
+    time_limits = ["2019-10-01 00:00:00","2019-12-01 00:00:00"]
+    time_limits = [datetime.strptime(date, "%Y-%m-%d %H:%M:%S") for date in time_limits]
+    ax.set_xlim((time_limits)) 
+    ax.set_ylim((140,300))
     plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
-    title = ax.set_title("\n".join(wrap(f"Amount of parked aircraft on ZRH between {start} and {end}", 50)))
-    title.set_y(1.05)    
-    # plt.savefig("aircraft_parked.pdf",bbox= 'tight')
-    
+    #title = ax.set_title("\n".join(wrap(f"Amount of parked aircraft on ZRH between {time_limits[0]} and {time_limits[1]}", 50)),{"size":20})
+    #title.set_y(1.05)    
+    plt.legend(handles=[matplotlib.lines.Line2D([0], [0], color='b', alpha = 0.5, lw=2, label='Upper bound',linestyle='--'),
+        matplotlib.lines.Line2D([0], [0], color='r', lw=4, label='Mean',linestyle='-'),
+        matplotlib.lines.Line2D([0], [0], color='r', alpha = 0.5, lw=2, label='Lower bound',linestyle='--')],                              
+        loc="lower right", 
+        prop={"size":15})
+    ax.grid('off', which='major', axis='y', linestyle='--', linewidth=0.8)
+    ax.tick_params(axis='both', which='major', labelsize=13)
+    plt.xlabel("Date",{"size":18})
+    plt.ylabel("Amount of aircraft parked at ZRH",{"size":18})
+    plt.savefig("aircraft_parked.pdf",bbox_inches= 'tight')
     mpl_active_bounds(ax)
+    print(max(dataframe["amount"]))
+    print(min(dataframe["amount"]))
 
 
 def part_of_aircraft_parking(start, end, subplot_number):
@@ -66,7 +80,7 @@ def part_of_aircraft_parking(start, end, subplot_number):
 
 
 def minimum_data(dataframe,start,end):
-    delta = timedelta(days=2.5)
+    delta = timedelta(days=2)
     start_node = datetime(2019,10,1,5,0,0)
     end_node = start_node+delta
     minimum_data = pd.DataFrame(columns=["timestamp","amount"])
@@ -96,6 +110,8 @@ def maximum_data(dataframe,start,end):
             maximum_data = maximum_data.append(maximum_entry)
         start_node+=delta
         end_node+=delta
+    end_entry = pd.DataFrame(np.array([[datetime.strptime("2019-11-30 05:50:21", "%Y-%m-%d %H:%M:%S"),276]]),columns=["timestamp","amount"])
+    maximum_data = maximum_data.append(end_entry)
     return maximum_data
 
 
