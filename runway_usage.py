@@ -84,7 +84,7 @@ flights_hourly = df.set_index("timestamp").groupby([pd.Grouper(freq='H')]).size(
 
 flights_hourly = flights_hourly.reset_index()
 flights_hourly.columns = ['timestamp', 'count']
-flights_hourly['hour']    = flights_hourly['timestamp'].dt.hour
+flights_hourly['hour'] = flights_hourly['timestamp'].dt.hour
 flights_hourly['dayname'] = flights_hourly['timestamp'].dt.day_name()
 flights_hourly['concept'] = flights_hourly.apply(concept_sorter,axis=1)
 
@@ -114,17 +114,19 @@ sum_concepts = flights_hourly.groupby('concept')['count'].sum()
 #________________________________________________________________________________________________________________________
 #plotting stuff
 
-#plt.figure(1, figsize=(35,8))
-#plt.title("Total Flight Movements per Hour")
-#for cp in flights_hourly.concept.unique():
-#    conc_ = flights_hourly[flights_hourly['concept']==cp][['timestamp', 'count']]
-#    conc_ = conc_[conc_['count']> 20]
-#    print(conc_)
-#    plt.scatter(conc_['timestamp'].values, conc_['count'].values, label=cp)
-#plt.axhline(y=50, xmin=0.0, xmax=1.0, color='r')
-#plt.legend()
-#axes = plt.gca()
-#axes.set_ylim([20,65])
+# plt.figure(1, figsize=(35,8))
+# plt.title("Total Flight Movements per Hour")
+#
+# for cp in flights_hourly.concept.unique():
+#     conc_ = flights_hourly[flights_hourly['concept']==cp][['timestamp', 'count']]
+#     conc_ = conc_[conc_['count']> 20]
+#     print(conc_)
+#
+#     plt.scatter(conc_['timestamp'].values, conc_['count'].values, label=cp)
+# plt.axhline(y=50, xmin=0.0, xmax=1.0, color='r')
+# plt.legend()
+# axes = plt.gca()
+# axes.set_ylim([20,65])
 
 
 
@@ -133,13 +135,13 @@ sum_concepts = flights_hourly.groupby('concept')['count'].sum()
 
 
 
-#plt.figure(2)
-#mean_plot = mean_concepts.plot.bar(
-#    x='concept',
-#    y='count',
-#    rot=0,
-#    title="Mean Hourly Flight Movements by Concept"
-#)
+# plt.figure(2)
+# mean_plot = mean_concepts.plot.bar(
+#     x='concept',
+#     y='count',
+#     rot=0,
+#     title="Mean Hourly Flight Movements by Concept"
+# )
 
 # sum_plot = sum_concepts.plot.pie(
 #     x='concept',
@@ -189,37 +191,26 @@ def part_of_total_flights(start_date, end_date, subplotnum, truncatenum, percent
     plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
     mpl_active_bounds(ax)
 
-#print(max_hourly)
-#max_hourly.unstack().plot(kind="bar", stacked=True)
-#plt.title("Maximum Flight Movements per Runway by Hour")
+ #max_hourly.unstack().plot(kind="bar", stacked=True)
+ #plt.title("Maximum Flight Movements per Runway by Hour")
+ #ax = plt.gca()
+ #ytick = np.arange(0,150,5)
+ #ax.set_yticks(ytick, minor=True)
+ #ax.grid('off', which='major', axis='y', linestyle='--', linewidth=0.5)
+ #ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
+
+
+
+#mean_hourly.unstack().plot(kind="bar", rot=0, stacked=True)
+#plt.title("Mean Flight Movements per Runway by Hour")
 #ax = plt.gca()
-#ytick = np.arange(0,150,5)
+#ytick = np.arange(0,75,5)
 #ax.set_yticks(ytick, minor=True)
 #ax.grid('off', which='major', axis='y', linestyle='--', linewidth=0.5)
 #ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
 
-mean_hourly = mean_hourly.unstack()
-mean_hourly = mean_hourly.iloc[:,[1,3,5,6,8,9,10,11]]
-mean_hourly = mean_hourly.fillna(0.)
-#print(mean_hourly)
-
-ax = mean_hourly.plot(kind="bar", rot=0, stacked=True,figsize=(16,9), legend=True)
-ytick = np.arange(0,75,5)
-ax.set_yticks(ytick, minor=True)
-ax.grid('off', which='major', axis='y', linestyle='--', linewidth=0.8)
-ax.grid('on', which='minor', axis='y', linestyle=':', linewidth=0.5)
-ax.set_ylim(0,70)
-plt.xlabel("Hour of day",{"size":18})
-plt.ylabel("Amount of flight movements",{"size":18})
-ax.tick_params(axis='both', which='major', labelsize=15)
 #part_of_total_flights('2019-10-01', "2019-11-30", 111, 30, 55)
-current_handles, current_labels = plt.gca().get_legend_handles_labels()
-current_labels = [label.strip("(").strip(")") for label in current_labels]
-reversed_handles = list(reversed(current_handles))
-reversed_labels = list(reversed(current_labels))
-plt.legend(reversed_handles,reversed_labels,prop={"size":13})
-plt.savefig("mean_per_hour_of_day.pdf",bbox_inches="tight")
-plt.show()
+#plt.show()
 
 
 
