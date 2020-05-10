@@ -383,28 +383,35 @@ def plot_loitering(subplot_number):
     ax = plt.subplot(subplot_number, projection=Stamen('terrain-background').crs)
     Stamen_terrain_background_plot(ax)
     plot_runway(ax,[10,14,16])
-    icao_data = pd.read_csv(os.path.join(os.getcwd()+"\\data\\icao24.csv"))
-    flight_id_list = list(icao_data["flight_id"])       
-    alpha_value = 0.07
+    loitering_area_data = pd.read_csv(os.path.join(os.getcwd()+"\\data\\LoiteringAreas.csv"))
+    flight_id_list = list(loitering_area_data["flight_id"])    
+    i,j,k=0,0,0   
     for file in os.listdir(os.getcwd() + f"\\data\\loitering_flights"):
         if file[-4:] == ".csv":
             flight_file = pd.read_csv(
                 f"data\\loitering_flights\\{file}"
             ).values
-            index = flight_id_list.index(file[:-4])
-            arriving = pd.array(icao_data["arriving"])[index]
-            if arriving:
-                lat, lon = flight_file[:, 7], flight_file[:, 8]
-                plot_arrival_track(ax, lon, lat,alpha_value)
-            else:
-                print(True)
-                lat, lon = flight_file[:, 8], flight_file[:, 9]
-                plot_departure_track(ax, lon, lat,alpha_value)
-    plt.legend(handles=[matplotlib.lines.Line2D([0], [0], color='b', lw=4, label='Arriving'),],loc="upper right", prop={"size":16})
+            index = flight_id_list.index(file)
+            loitering_area = pd.array(loitering_area_data["Area"])[index]
+            lat, lon = flight_file[:, 7], flight_file[:, 8]
+            if loitering_area==0:
+                ax.plot(lon, lat, transform=cartopy.crs.Geodetic(), color="b", linewidth=0.4, alpha=0.045)
+                i+=1
+            if loitering_area==1:
+                ax.plot(lon, lat, transform=cartopy.crs.Geodetic(), color="r", linewidth=0.4, alpha=0.07)
+                j+=1
+            if loitering_area==2:
+                ax.plot(lon, lat, transform=cartopy.crs.Geodetic(), color="black", linewidth=0.4, alpha=0.14)
+                k+=1
+            
+    plt.legend(handles=[matplotlib.lines.Line2D([0], [0], color='b', lw=4, label='GIPOL'),
+        matplotlib.lines.Line2D([0], [0], color='r', lw=4, label='RILAX'),
+        matplotlib.lines.Line2D([0], [0], color='black', lw=4, label='AMIKI')],
+        loc="upper right", prop={"size":16})
     #title = ax.set_title("\n".join(wrap(f'All loitering flights near ZRH', 50)))
     #title.set_y(1.05)    
     print(time.time()-start_time)
-
+    print(i,j,k)
 
 
 plt.figure(figsize=(9,9))
