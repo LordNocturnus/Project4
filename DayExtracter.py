@@ -14,10 +14,10 @@ lst = []
 for i,flight in flights.iterrows():
     date = flight['timestamp'][0:10]
     time = flight['timestamp'][11:19]
-    entry = [date,time,flight['direction'], flight['speed']]
+    entry = [date,time,flight['direction']]
     lst.append(entry)
 
-newcolumns = ['date','time', 'direction', 'WindSpeed']
+newcolumns = ['date','time', 'direction']
 newflights = pd.DataFrame(lst,columns=newcolumns)
 
 
@@ -51,10 +51,10 @@ for i, time in daysDF.iterrows():
     day = time['day']
     for j, flight in newflights.iterrows():
         if date == flight['date']:
-            lst3.append([flight['date'], day, flight['time'], flight['direction'], flight['WindSpeed']])
+            lst3.append([flight['date'], day, flight['time'], flight['direction']])
 
-lastcolumns = ['date', 'day', 'timestamp', 'direction', 'WindSpeed']
+lastcolumns = ['date', 'day', 'timestamp', 'direction']
 panda = pd.DataFrame(lst3, columns=lastcolumns)
-panda.to_csv("data\\AddedWindDirectionAndSpeed.csv", index=False)
+panda.to_csv("data\\AddedWindDirection.csv", index=False)
 print('done')
 

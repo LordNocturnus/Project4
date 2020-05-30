@@ -12,9 +12,9 @@ probable_concept = []
 errors = 0
 
 for i, row in runway14_32.iterrows():
-    if row['arriving'] == True and row['runway'] == 14:
+    if row['arriving'] == True and row['new_runway'] == 14:
         concept = 0
-    elif row['arriving'] == False and row['runway'] == 32:
+    elif row['arriving'] == False and row['new_runway'] == 32:
         concept = 12
     else:
         concept = 99
@@ -24,9 +24,9 @@ for i, row in runway14_32.iterrows():
 print('analysed runway 14/32')
 
 for i, row in runway10_28.iterrows():
-    if row['arriving'] == True and row['runway'] == 28:
+    if row['arriving'] == True and row['new_runway'] == 28:
         concept = 1
-    elif row['arriving'] == False and row['runway'] == 10:
+    elif row['arriving'] == False and row['new_runway'] == 10:
         concept = 0
     elif row['arriving'] == False:
         concept = 0.12
@@ -38,9 +38,9 @@ for i, row in runway10_28.iterrows():
 print('analysed runway 10/28')
 
 for i, row in runway16_34.iterrows():
-    if row['arriving'] == True and row['runway'] == 34:
+    if row['arriving'] == True and row['new_runway'] == 34:
         concept = 2
-    elif row['arriving'] == False and row['runway'] == 16:
+    elif row['arriving'] == False and row['new_runway'] == 16:
         concept = 0
     elif row['arriving'] == False:
         concept = 12

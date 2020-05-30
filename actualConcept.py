@@ -4,6 +4,8 @@ import pandas as pd
 
 runway_usage = pd.read_csv("data\\probable_concepts.csv", dtype = {'icao24':str, 'arriving':bool}).sort_values(by=["timestamp"])
 
+print(runway_usage)
+
 print('import ok')
 
 #runway_usage['next_concept'] = runway_usage['concept'].shift(+1)
