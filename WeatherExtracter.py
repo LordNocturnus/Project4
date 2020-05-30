@@ -10,17 +10,17 @@ for i, flight in arrflights.iterrows():
     date = flight['Time']#[0:10]
     #time = flight['Time'][11:19]
     winddirection = flight['WindDirection']
-    WindSpeed = flight['speed']
-    lst.append([date, winddirection, WindSpeed])
+    WindSpeed = flight['WindSpeed']
+    lst.append([date, winddirection, WindSpeed, flight['flight_ID']])
 
 for j, flight in depflights.iterrows():
     date = flight['Time']#[0:10]
     #time = flight['Time'][11:19]
     winddirection = flight['WindDirection']
-    WindSpeed = flight['speed']
-    lst.append([date, winddirection, WindSpeed])
+    WindSpeed = flight['WindSpeed']
+    lst.append([date, winddirection, WindSpeed, flight['flight_ID']])
 
-columns = ['timestamp', 'direction', 'speed']
+columns = ['timestamp', 'direction', 'speed', 'flight_id']
 x = pd.DataFrame(lst, columns=columns).sort_values(by=['timestamp'])
 
 x.to_csv("data\\weatherdata.csv")

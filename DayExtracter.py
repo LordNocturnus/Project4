@@ -13,11 +13,11 @@ flights = pd.read_csv("data\\weatherdata.csv").sort_values(by=['timestamp'])
 lst = []
 for i,flight in flights.iterrows():
     date = flight['timestamp'][0:10]
-    time = flight['timestamp'][11:19]
-    entry = [date,time,flight['direction']]
+    time = flight['timestamp'][11:]
+    entry = [date,time,flight['direction'], flight['speed'], flight['flight_id']]
     lst.append(entry)
 
-newcolumns = ['date','time', 'direction']
+newcolumns = ['date','time', 'direction', 'speed', 'flight_id']
 newflights = pd.DataFrame(lst,columns=newcolumns)
 
 
@@ -51,9 +51,9 @@ for i, time in daysDF.iterrows():
     day = time['day']
     for j, flight in newflights.iterrows():
         if date == flight['date']:
-            lst3.append([flight['date'], day, flight['time'], flight['direction']])
+            lst3.append([flight['date'], day, flight['time'], flight['direction'], flight['speed'], flight['flight_id']])
 
-lastcolumns = ['date', 'day', 'timestamp', 'direction']
+lastcolumns = ['date', 'day', 'timestamp', 'direction', 'speed', 'flight_id']
 panda = pd.DataFrame(lst3, columns=lastcolumns)
 panda.to_csv("data\\AddedWindDirection.csv", index=False)
 print('done')

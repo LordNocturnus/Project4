@@ -1,6 +1,6 @@
 import pandas as pd
 
-flights = pd.read_csv("data\\AddedWindDirectionAndSpeed.csv")
+flights = pd.read_csv("data\\AddedWindDirection.csv")
 
 kts = 0.539956803 # kts/(km/h)
 #print(flights)
@@ -17,7 +17,7 @@ for i, flight in flights.iterrows():
     intminute = int(minute)
     wantedtimestamp = flight['date'] + ' ' + flight['timestamp']
     direction = flight['direction']
-    speed = flight['WindSpeed']
+    speed = flight['speed']
     if inthour in range(0,6):
         lst.append([wantedtimestamp,99])
 
@@ -61,6 +61,7 @@ for i, flight in flights.iterrows():
 
 expectedcolumns = ['timestamp','ExpectedConcept']
 expectedlist = pd.DataFrame(lst,columns=expectedcolumns) #This dataframe has 1 flight less then the original amount of flights
+expectedlist['flight_id'] = flights['flight_id']
 expectedlist.to_csv("data\\expected_concept_V3Final.csv",index=False)
 print('done')
 
