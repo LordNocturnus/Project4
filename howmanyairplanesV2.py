@@ -1,22 +1,14 @@
 import pandas as pd
-import openpyxl
-from matplotlib import pyplot as pp
 
 flights = pd.read_csv("data\\useful_flights.csv", dtype= {'icao24':str, 'arriving':bool}).sort_values(by=['timestamp'])
-
-print(flights)
 
 ## determine how many airplanes are initially @zurich
 
 initial_amount = 0
-icao_list = pd.read_csv("data\\icao24.csv", dtype= {'icao24':str, 'arriving':bool})
 
-icaos = set(icao_list['icao24'])
-
-icao_list = icao_list.set_index(['icao24'])
-#print(icao_list.loc['0083c3'])
-#print(icao_list.loc['0083c3'].iloc[0]['arriving'])
-#print(icao_list.loc['0083c3'].shape)
+icaos = set(flights['icao'])
+icao_list = flights
+icao_list = icao_list.set_index(['icao'])
 
 for icao in icaos:
 
@@ -33,7 +25,7 @@ for icao in icaos:
             #print('yes2!, ' , icao)
 
 
-#print(initial_amount, '/', len(icaos))
+print(initial_amount, '/', len(icaos))
 
 #check for everytimestamp how many airplanes there are on zurich
 amount = initial_amount
@@ -55,7 +47,6 @@ for i, flight in flights.iterrows():
 row = ['timestamp', 'amount']
 finalpanda = pd.DataFrame(finallist, columns=row)
 finalpanda.to_csv("data\\runway_usage\\howmanyairplanes2.csv",index=False)
-#finalpanda.to_excel("data\\runway_usage\\howmanyairplanes.xlsx", sheet_name='howmanyairplanes', index=True)
 print('done')
 '''  
 #print(finallist)

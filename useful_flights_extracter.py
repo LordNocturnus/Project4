@@ -7,6 +7,8 @@ flights['next_arriving'] = flights['arriving'].shift(+1)
 flights['last_icao'] = flights['icao24'].shift(-1)
 flights['last_arriving'] = flights['arriving'].shift(-1)
 
+flights.sort_values(by=['icao24', 'timestamp'])
+
 
 useful = []
 not_useful = []
@@ -18,8 +20,8 @@ for i, flight in flights.iterrows():
         entry = [flight['icao24'], flight['flight_id'], flight['timestamp'], flight['arriving']]
         useful.append(entry)
     else:
-        entry = [flight['timestamp'][0:11], flight['last_icao'], flight['last_arriving'], flight['icao24'], flight['arriving'], flight['next_icao'],
-             flight['next_arriving']]
+        entry = [flight['timestamp'][0:11], flight['last_icao'], flight['last_arriving'], flight['icao24'],
+                 flight['arriving'], flight['next_icao'], flight['next_arriving']]
         not_useful.append(entry)
 
 pandacolumns = ['icao', 'flight_id', 'timestamp', 'arriving']
@@ -27,7 +29,29 @@ pandacolumns = ['icao', 'flight_id', 'timestamp', 'arriving']
 x = pd.DataFrame(useful, columns=pandacolumns)
 x.to_csv("data\\useful_flights.csv", index=False)
 
-y = pd.DataFrame(not_useful, columns = ['timestamp', 'last_icao24', 'last_arriving', 'icao24', 'arriving', 'next_icao24', 'next_arriving']).sort_values(by=['timestamp'])
+y = pd.DataFrame(not_useful, columns = ['timestamp', 'last_icao24', 'last_arriving', 'icao24',
+                                        'arriving', 'next_icao24', 'next_arriving']).sort_values(by=['timestamp'])
 print(y['timestamp'].value_counts())
 y.to_csv("data\\not_useful_flights.csv", index = False)
 print('done')
+
+datefrequencies = y['timestamp'].value_counts()
+
+arrival_occurrences = []
+for item in datefrequencies.iteritems():
+    counter = 0
+    for i, flight in y.iterrows():
+        if flight['timestamp'] == item[0] and flight['arriving']:
+            counter += 1
+    arrival_occurrences.append(counter)
+
+#print(arrival_occurrences)
+
+datefrequencies.to_frame()
+#print(datefrequencies.index.values)
+datefrequencies = datefrequencies.reset_index()
+
+datefrequencies['arrivals'] = pd.Series(arrival_occurrences)
+
+print(datefrequencies)
+#print(y[['timestamp', 'arriving']])
