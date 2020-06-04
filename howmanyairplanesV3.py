@@ -18,9 +18,11 @@ non_commercial_flights = non_commercial_flights.drop(index=commercial_flights.ic
 non_commercial_flights = non_commercial_flights.reset_index()
 
 ##### SET ANALYSIS HERE
-flights = non_commercial_flights
-file = "ground_usage_non_commercial.csv"
+flights = commercial_flights
+file = "ground_usage_commercial.csv"
 ##### SET ANALYSIS HERE
+
+flights = flights.sort_values(by=['timestamp'])
 
 ## determine how many airplanes are initially @zurich
 initial_amount = 0
