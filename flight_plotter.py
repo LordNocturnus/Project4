@@ -382,7 +382,7 @@ def plot_loitering(subplot_number):
     start_time = time.time()
     ax = plt.subplot(subplot_number, projection=Stamen('terrain-background').crs)
     Stamen_terrain_background_plot(ax)
-    plot_runway(ax,[10,14,16])
+    ax.plot(8.550518 ,47.464394, transform=cartopy.crs.Geodetic(), marker="o",color = "black", markersize=10)
     loitering_area_data = pd.read_csv(os.path.join(os.getcwd()+"\\data\\LoiteringAreas.csv"))
     flight_id_list = list(loitering_area_data["flight_id"])    
     i,j,k=0,0,0   
@@ -406,13 +406,13 @@ def plot_loitering(subplot_number):
             
     plt.legend(handles=[matplotlib.lines.Line2D([0], [0], color='b', lw=4, label='GIPOL'),
         matplotlib.lines.Line2D([0], [0], color='r', lw=4, label='RILAX'),
-        matplotlib.lines.Line2D([0], [0], color='black', lw=4, label='AMIKI')],
+        matplotlib.lines.Line2D([0], [0], color='black', lw=4, label='AMIKI'),
+        matplotlib.lines.Line2D([0], [0], marker="o", markerfacecolor='black',color='white', markersize=15, label='ZRH')],
         loc="upper right", prop={"size":16})
     #title = ax.set_title("\n".join(wrap(f'All loitering flights near ZRH', 50)))
     #title.set_y(1.05)    
     print(time.time()-start_time)
     print(i,j,k)
-
 
 plt.figure(figsize=(9,9))
 
@@ -427,8 +427,7 @@ plt.figure(figsize=(9,9))
 #plot_flight_file(111,'modified_flights')
 plot_loitering(111)
 
-plt.savefig("loitering.pdf",bbox_inches = "tight")
-plt.savefig("loitering.png", bbox = "tight", dpi=400)
+plt.savefig("loitering_2.png", bbox_inches = "tight", dpi=400)
 plt.show()
 
 #Helper functions

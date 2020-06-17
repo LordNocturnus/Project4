@@ -16,6 +16,32 @@ parking_data = pd.read_csv(os.path.join(os.getcwd() + "\\data\\howmanyairplanes2
 commercial_data = pd.read_csv(os.path.join(os.getcwd() +  "\\data\\ground_usage_commercial.csv"))
 non_commercial_data = pd.read_csv(os.path.join(os.getcwd() +  "\\data\\ground_usage_non_commercial.csv"))
 
+
+path_runway10_28 = "data/runway10_28.csv"
+path_runway14_32 = "data/runway14_32.csv"
+path_runway16_34 = "data/runway16_34.csv"
+
+
+# import runway data
+runway10_28 = pd.read_csv(path_runway10_28)
+runway14_32 = pd.read_csv(path_runway14_32)
+runway16_34 = pd.read_csv(path_runway16_34)
+
+# create single dataframe
+df = pd.concat([runway10_28, runway14_32, runway16_34], ignore_index=True)
+df["timestamp"] = pd.to_datetime(df["timestamp"])
+
+flights_hourly = df.set_index("timestamp").groupby([pd.Grouper(freq='H')]).size()
+
+flights_hourly = flights_hourly.reset_index()
+flights_hourly.columns = ['timestamp', 'amount']
+flights_hourly['hour']    = flights_hourly['timestamp'].dt.hour
+flights_hourly['dayname'] = flights_hourly['timestamp'].dt.day_name()
+
+flights_hourly = flights_hourly[flights_hourly["amount"]!=0]
+
+
+
 def mpl_active_bounds(ax):
     def on_xlims_change(event_ax):
         
@@ -24,7 +50,7 @@ def mpl_active_bounds(ax):
     ax.callbacks.connect("xlim_changed", on_xlims_change)
 
 
-def plot_aircraft_parking(dataframe, subplot_number,start,end):
+def plot_aircraft_parking(dataframe, subplot_number,start,end,color):
     dates = dataframe["timestamp"]
     if type(pd.array(dataframe["timestamp"])[0]) == str:
         # Convert dates list into datetime objects if not already
@@ -42,23 +68,24 @@ def plot_aircraft_parking(dataframe, subplot_number,start,end):
     #ax.plot(min_max_points["timestamp"],min_max_points["amount"],color = 'b')
     #b, a = signal.butter(1, 1/2000)
     #y = signal.filtfilt(b, a, dataframe["amount"]) lowpass signal filter
-    ax.plot(dates, dataframe["amount"], color="black", linewidth=0.5)
+    ax.plot(dates, dataframe["amount"], color="black", linewidth=0.8)
     #ax.plot(dates,y,color="r",linewidth=2)
     #ax.scatter(minimum_points["timestamp"],minimum_points["amount"], color="r")
     #ax.scatter(maximum_points["timestamp"],maximum_points["amount"], color="b")
-    ax.plot(x_mean,y_mean,color="r",linewidth=2)
+    ax.plot(x_mean,y_mean,color=color,linewidth=2.5)
     xfmt = matplotlib.dates.DateFormatter("%Y-%m-%d")
     ax.xaxis.set_major_formatter(xfmt)
     time_limits = ["2019-10-01 00:00:00","2019-12-01 00:00:00"]
     time_limits = [datetime.strptime(date, "%Y-%m-%d %H:%M:%S") for date in time_limits]
-    #ax.set_xlim((time_limits)) 
-    #ax.set_ylim((140,300))
+    ax.set_xlim((time_limits)) 
+    #ax.set_ylim((20,160))
     plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
     #title = ax.set_title("\n".join(wrap(f"Amount of parked aircraft on ZRH between {time_limits[0]} and {time_limits[1]}", 50)),{"size":20})
     #title.set_y(1.05)    
-    plt.legend(handles=[matplotlib.lines.Line2D([0], [0], color='r', lw=4, label='Mean',linestyle='-')],                             
-        loc="lower right", 
-        prop={"size":15})
+    #plt.legend(handles=[matplotlib.lines.Line2D([0], [0], color='b', lw=4, label='Non - Commercial',linestyle='-'),
+    #    matplotlib.lines.Line2D([0], [0], color='r', lw=4, label='Commercial', linestyle='-')],   
+    #    loc="lower right", 
+    #    prop={"size":15})
     #unused legend handles
     #matplotlib.lines.Line2D([0], [0], color='b', alpha = 0.5, lw=2, label='Upper bound',linestyle='--')
     #matplotlib.lines.Line2D([0], [0], color='r', alpha = 0.5, lw=2, label='Lower bound',linestyle='--')]
@@ -69,17 +96,17 @@ def plot_aircraft_parking(dataframe, subplot_number,start,end):
     plt.ylabel("Amount of aircraft parked at ZRH",{"size":18})
     #plt.savefig("aircraft_parked.pdf",bbox_inches= 'tight')
     mpl_active_bounds(ax)
+    print(max(dataframe["amount"]))
     
 
-
-def part_of_aircraft_parking(start, end, subplot_number, dataframe):
+def part_of_aircraft_parking(start, end, subplot_number, dataframe,color):
     dataframe = dataframe.sort_values("timestamp")
     start_date = datetime.strptime(start, "%Y-%m-%d %H:%M:%S+00:00")
     end_date = datetime.strptime(end, "%Y-%m-%d %H:%M:%S+00:00")
     dataframe["timestamp"] = [datetime.strptime(date, "%Y-%m-%d %H:%M:%S+00:00") for date in pd.array(dataframe["timestamp"])]
     condition = (dataframe["timestamp"] >= start_date) & (dataframe["timestamp"] <= end_date)
     part_of_dataframe = dataframe[condition]
-    plot_aircraft_parking(part_of_dataframe, subplot_number,start_date,end_date)
+    plot_aircraft_parking(part_of_dataframe, subplot_number,start_date,end_date,color)
 
 
 def minimum_data(dataframe,start,end):
@@ -168,7 +195,10 @@ def interpolate_data(dataframe):
 
 plt.figure(figsize=(16,9))
 #part_of_aircraft_parking("2019-11-14 01:00:00+00:00", "2019-11-15 01:00:00+00:00", 111)
-#part_of_aircraft_parking("2019-10-01 04:01:12+00:00","2019-11-30 22:13:46+00:00", 111, parking_data)
-part_of_aircraft_parking("2019-10-01 04:01:12+00:00","2019-11-30 22:13:46+00:00", 111, commercial_data)
-#part_of_aircraft_parking("2019-10-01 04:01:12+00:00","2019-11-30 22:13:46+00:00", 111, non_commercial_data)
+part_of_aircraft_parking("2019-10-01 04:01:12+00:00","2019-11-30 22:13:46+00:00", 111, parking_data,"blue")
+#part_of_aircraft_parking("2019-10-01 04:01:12+00:00","2019-11-30 22:13:46+00:00", 111, commercial_data, "red")
+#part_of_aircraft_parking("2019-10-01 04:01:12+00:00","2019-11-30 22:13:46+00:00", 111, non_commercial_data, "blue")
+#plt.plot(flights_hourly["timestamp"],flights_hourly["amount"], color="black", linewidth=1)
+
+#plt.savefig("aircraft_parked_V2.png",dpi=500,bbox_inches= 'tight')
 plt.show()
